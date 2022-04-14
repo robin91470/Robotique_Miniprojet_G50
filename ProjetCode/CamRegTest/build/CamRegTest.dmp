@@ -1,6 +1,6 @@
 
-build/CamReg.elf:     file format elf32-littlearm
-build/CamReg.elf
+build/CamRegTest.elf:     file format elf32-littlearm
+build/CamRegTest.elf
 architecture: arm, flags 0x00000112:
 EXEC_P, HAS_SYMS, D_PAGED
 start address 0x080001c1
@@ -68,9 +68,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  23 .debug_line   00028912  00000000  00000000  00139d02  2**0
                   CONTENTS, READONLY, DEBUGGING
- 24 .debug_str    00007cae  00000000  00000000  00162614  2**0
+ 24 .debug_str    00007d0a  00000000  00000000  00162614  2**0
                   CONTENTS, READONLY, DEBUGGING
- 25 .debug_frame  0000780c  00000000  00000000  0016a2c4  2**2
+ 25 .debug_frame  0000780c  00000000  00000000  0016a320  2**2
                   CONTENTS, READONLY, DEBUGGING
 SYMBOL TABLE:
 08000000 l    d  startup	00000000 startup
