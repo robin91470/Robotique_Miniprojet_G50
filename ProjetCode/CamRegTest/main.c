@@ -11,6 +11,10 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
+#include <sensors/proximity.h>
+#include <sensors/VL53L0X/VL53L0X.h>
+#include <audio/play_sound_file.h>
+#include <audio/play_melody.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
