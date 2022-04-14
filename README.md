@@ -1,7 +1,4 @@
 # Projet
- Projet epuck
+Contient les instructions, idées et la to-do list :
 
-
-Salut Mec ! Ca va ?
-
-Oui et toi?
+TO DO:
