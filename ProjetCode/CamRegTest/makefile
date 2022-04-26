@@ -9,7 +9,7 @@ PROJECT = Project_Robotique
 GLOBAL_PATH = ../../lib/e-puck2_main-processor
 
 #Source files to include
-CSRC += ./main.c \
+CSRC += ./main_proximity.c \
 		./pi_regulator.c \
 		./process_image.c \
 
