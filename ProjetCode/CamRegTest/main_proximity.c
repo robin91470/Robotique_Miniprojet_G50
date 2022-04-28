@@ -44,11 +44,13 @@ static void serial_start(void)
 
 int main(void)
 {
-
     halInit();
     chSysInit();
     mpu_init();
 
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
+    messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
+    proximity_msg_t proximity_values;
 
     //starts the serial communication
     serial_start();
@@ -64,9 +66,7 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
-    messagebus_init(&bus, &bus_lock, &bus_condvar);
-    messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
-    proximity_msg_t proximity_values;
+
 
     /* Infinite loop. */
     while (1) {
