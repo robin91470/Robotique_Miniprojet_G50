@@ -76,6 +76,9 @@ int main(void)
 
         chprintf((BaseSequentialStream *)&SD3, "%IR1=%.2f IR2=%.2f IR3=%.2f IR4=%.2f IR5=%.2f IR6=%.2f IR7=%.2f IR8=%.2f (%x)\r\n\n",
         		get_prox(0), get_prox(1), get_prox(2), get_prox(3), get_prox(4), get_prox(5), get_prox(6), get_prox(7));
+    	//chprintf((BaseSequentialStream *)&SDU1, "PROXIMITY\r\n");
+    	//chprintf((BaseSequentialStream *)&SDU1, "%4d,%4d,%4d,%4d,%4d,%4d,%4d,%4d\r\n\n", prox_values.delta[0], prox_values.delta[1], prox_values.delta[2], prox_values.delta[3], prox_values.delta[4], prox_values.delta[5], prox_values.delta[6], prox_values.delta[7]);
+
         chThdSleepMilliseconds(100);
     }
 }
