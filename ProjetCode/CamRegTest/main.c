@@ -50,19 +50,20 @@ int main(void)
     //start the USB communication
     usb_start();
     //starts the camera
-    dcmi_start();
-	po8030_start();
+//    dcmi_start();
+//	po8030_start();
 	//inits the motors
 	motors_init();
-	//uint8_t RAF = 2+2;
-	//stars the threads for the pi regulator and the processing of the image
-	pi_regulator_start();
-	process_image_start();
+	//inits distance sensor
+	//VL53L0X_init(device);
+	VL53L0X_start();
 
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(1000);
+    	chprintf((BaseSequentialStream *)&SD3, "DISTANCE SENSOR\r\n");
+    	chprintf((BaseSequentialStream *)&SD3, "%d\r\n\n", VL53L0X_get_dist_mm());
+        chThdSleepMilliseconds(100);
     }
 }
 
