@@ -15,9 +15,14 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
+#include <leds.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
+
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -44,25 +49,48 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     //starts the serial communication
     serial_start();
+
     //start the USB communication
     usb_start();
     //starts the camera
-    dcmi_start();
-	po8030_start();
+//    dcmi_start();
+//	po8030_start();
 	//inits the motors
-	motors_init();
-	//uint8_t RAF = 2+2;
+//	motors_init();
 	//stars the threads for the pi regulator and the processing of the image
-	pi_regulator_start();
-	process_image_start();
+//	pi_regulator_start();
+//	process_image_start();
+    //chprintf((BaseSequentialStream *)&SD3,"test2 \n");
+    proximity_start();
+    calibrate_ir();
+    messagebus_topic_t *prox_topic = messagebus_find_topic_blocking(&bus, "/proximity");
+    proximity_msg_t prox_values;
+
 
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(1000);
+		messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
+    	chprintf((BaseSequentialStream *)&SD3, "PROXIMITY\r\n");
+    	chprintf((BaseSequentialStream *)&SD3, "%4d,%4d,%4d,%4d,%4d,%4d,%4d,%4d\r\n\n", prox_values.delta[0], prox_values.delta[1], prox_values.delta[2], prox_values.delta[3], prox_values.delta[4], prox_values.delta[5], prox_values.delta[6], prox_values.delta[7]);
+    	chThdSleepMilliseconds(100);
+    	for(unsigned int i = 0; i<7; i++){
+    		if((i!=2) && (i!=4)){
+				if (abs(prox_values.delta[i]) > 50){
+					//palClearPad(GPIOD, GPIOD_LED_FRONT);
+					set_front_led(1);
+					break;
+				}
+				else {
+					set_front_led(0);
+				}
+    		}
+    	}
+
     }
 }
 
