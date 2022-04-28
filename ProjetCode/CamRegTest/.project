@@ -29,7 +29,7 @@
 		<link>
 			<name>e-puck2_main-processor</name>
 			<type>2</type>
-			<locationURI>copy_PARENT/lib/e-puck2_main-processor</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/lib/e-puck2_main-processor</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
