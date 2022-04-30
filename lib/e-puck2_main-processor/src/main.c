@@ -484,7 +484,7 @@ int main(void)
 
     /* Infinite loop. */
     while (1) {
-        chThdSleepMilliseconds(1000);
+        chThdSleepMilliseconds(500);
     }
 }
 

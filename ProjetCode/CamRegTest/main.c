@@ -60,7 +60,7 @@ int main(void)
 //    dcmi_start();
 //	po8030_start();
 	//inits the motors
-//	motors_init();
+	motors_init();
 	//stars the threads for the pi regulator and the processing of the image
 //	pi_regulator_start();
 //	process_image_start();
@@ -79,14 +79,19 @@ int main(void)
     	chprintf((BaseSequentialStream *)&SD3, "%4d,%4d,%4d,%4d,%4d,%4d,%4d,%4d\r\n\n", prox_values.delta[0], prox_values.delta[1], prox_values.delta[2], prox_values.delta[3], prox_values.delta[4], prox_values.delta[5], prox_values.delta[6], prox_values.delta[7]);
     	chThdSleepMilliseconds(100);
     	for(unsigned int i = 0; i<7; i++){
-    		if((i!=2) && (i!=4)){
-				if (abs(prox_values.delta[i]) > 50){
+    		if((i!=2) && (i!=4)){ //ignoring defective sensors
+				if (abs(prox_values.delta[i]) > 100){
 					//palClearPad(GPIOD, GPIOD_LED_FRONT);
+
+					left_motor_set_speed(0);
+					right_motor_set_speed(0);
 					set_front_led(1);
 					break;
 				}
 				else {
-					set_front_led(0);
+				    left_motor_set_speed(500);
+				    right_motor_set_speed(500);
+				    set_front_led(0);
 				}
     		}
     	}
