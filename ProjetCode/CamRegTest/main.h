@@ -15,15 +15,16 @@ extern "C" {
 #define WIDTH_SLOPE				5
 #define LINE_WIDTH_MIN			30
 #define PXTOCM					1570.0f
-#define MAX_DIST 				25.0f
-#define GOAL_DIST				10.0f
-#define ERROR_THRESHOLD			0.5f	//[cm] because of the noise of the camera
-#define KP						400.0f
-#define KI 						7.0f	//must not be zero
-#define KD						7.0f
+#define MAX_DIST 				1000.0f
+#define GOAL_DIST				300.0f
+#define ERROR_THRESHOLD			10.0f	//[mm] because of the noise of the sensor
+#define KP						20.0f
+#define KI 						1.4f	//must not be zero
+#define KD						1.4f
 #define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 #define ROTATION_THRESHOLD		10
 #define ROTATION_COEFF			2
+#define NB_SAMPLES				10
 /** Robot wide IPC bus. */
 extern messagebus_t bus;
 

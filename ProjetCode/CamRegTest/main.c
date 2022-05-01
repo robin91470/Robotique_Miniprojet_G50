@@ -16,7 +16,7 @@
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
 
-#include <pi_regulator.h>
+#include <pid_distance.h>
 #include <process_image.h>
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
@@ -55,9 +55,8 @@ int main(void)
 	//inits the motors
 	motors_init();
 	//inits distance sensor
-	//VL53L0X_init(device);
 	VL53L0X_start();
-
+	pid_distance_start();
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
