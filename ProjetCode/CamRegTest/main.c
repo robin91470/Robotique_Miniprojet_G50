@@ -15,7 +15,13 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
+<<<<<<< Updated upstream
 
+=======
+#include <leds.h>
+#include <audio/audio_thread.h>//ajouté pour l'audio
+#include <audio/play_melody.h>
+>>>>>>> Stashed changes
 #include <pi_regulator.h>
 #include <process_image.h>
 
@@ -56,13 +62,36 @@ int main(void)
 	motors_init();
 	//uint8_t RAF = 2+2;
 	//stars the threads for the pi regulator and the processing of the image
+<<<<<<< Updated upstream
 	pi_regulator_start();
 	process_image_start();
+=======
+//	pi_regulator_start();
+//	process_image_start();
+    //chprintf((BaseSequentialStream *)&SD3,"test2 \n");
+	dac_start();//pas sur qu'il faille le mettre
+	playMelodyStart();//lance le module
+	playSoundFileStart();//
+	setSoundFileVolume(40);
+	char* path = "sound.wav";
+	//playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
+
+
+
+>>>>>>> Stashed changes
 
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
+<<<<<<< Updated upstream
         chThdSleepMilliseconds(1000);
+=======
+    	playSoundFile(path, SF_SIMPLE_PLAY);
+    	waitSoundFileHasFinished();
+    	chThdSleepMilliseconds(1000);
+
+
+>>>>>>> Stashed changes
     }
 }
 
