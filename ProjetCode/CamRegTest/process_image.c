@@ -52,9 +52,9 @@ static THD_FUNCTION(ProcessImage, arg) {
     (void)arg;
 
 	uint8_t *img_buff_ptr;
-	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
+//	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_rouge[IMAGE_BUFFER_SIZE] = {0};
-	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
+//	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
 	unsigned int width = 0;
 
     while(1){
@@ -66,16 +66,16 @@ static THD_FUNCTION(ProcessImage, arg) {
 		img_buff_ptr = dcmi_get_last_image_ptr();
 		for(unsigned int i=0;i<IMAGE_BUFFER_SIZE*2;i+=2){
 			image_rouge[i/2] = img_buff_ptr[i] >> 3;
-			image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
+			//image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
 			//prends les trois premiers bits du msb vert et adapte leurs valeur par rapport à la datasheet
-			image_vert[i/2] = img_buff_ptr[i] &0x07 *2 * 2 * 2;
+			//image_vert[i/2] = img_buff_ptr[i] &0x07 *2 * 2 * 2;
 			//rajoute les 3 bits du msb situé sur l'indice suivant sur img_buff_ptr
-			image_vert[i/2] += img_buff_ptr[i+1] >> 5;
+			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
 		}
-//		SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-		width = detection_line_width(image_rouge);
+		SendUint8ToComputer(image_rouge, IMAGE_BUFFER_SIZE);
+		//width = detection_line_width(image_rouge);
 
-		chprintf((BaseSequentialStream *)&SD3, "%middle=%d and width=%d \r \n", line_position, width);
+		//chprintf((BaseSequentialStream *)&SD3, "%middle=%d and width=%d \r \n", line_position, width);
 		/*
 		*	To complete
 		*/

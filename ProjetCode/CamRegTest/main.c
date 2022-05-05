@@ -56,12 +56,15 @@ int main(void)
 	motors_init();
 	//inits distance sensor
 	VL53L0X_start();
-	pid_distance_start();
+	//inits PID controller for distance
+//	pid_distance_start();
+	//inits the process of image
+	process_image_start();
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	chprintf((BaseSequentialStream *)&SD3, "DISTANCE SENSOR\r\n");
-    	chprintf((BaseSequentialStream *)&SD3, "%d\r\n\n", VL53L0X_get_dist_mm());
+//    	chprintf((BaseSequentialStream *)&SD3, "DISTANCE SENSOR\r\n");
+//    	chprintf((BaseSequentialStream *)&SD3, "%d\r\n\n", VL53L0X_get_dist_mm());
         chThdSleepMilliseconds(100);
     }
 }
