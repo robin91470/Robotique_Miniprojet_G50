@@ -66,6 +66,7 @@ int main(void)
 //	process_image_start();
     //chprintf((BaseSequentialStream *)&SD3,"test2 \n");
 	dac_start();//pas sur qu'il faille le mettre
+	setSoundFileVolume(10);
 	playMelodyStart();//lance le module
 	//playMelody(MARIO, ML_SIMPLE_PLAY, NULL);
 

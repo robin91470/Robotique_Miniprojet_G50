@@ -643,6 +643,29 @@ static const uint16_t megalovania_melody[] = {
 
   NOTE_AS3, NOTE_AS3, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
   NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+  //repeat of first part
+  NOTE_D4, NOTE_D4, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_C4, NOTE_C4, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_B3, NOTE_B3, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_AS3, NOTE_AS3, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+  //end of repeat
+  NOTE_E5, NOTE_F5, NOTE_F5, NOTE_F5, 0, NOTE_F5, 0,
+  NOTE_E5, NOTE_F5, NOTE_D5, 0, NOTE_D5,
+
+  NOTE_F5, NOTE_F5, NOTE_F5, 0, NOTE_G5, 0, NOTE_GS5,
+  NOTE_G5, NOTE_GS5, NOTE_G5, NOTE_D5, NOTE_F5, NOTE_G5, 0,
+
+  NOTE_F5, NOTE_F5, NOTE_F5, 0, NOTE_G5, 0, NOTE_GS5,
+  0, NOTE_A5, 0, NOTE_C6, 0, NOTE_A5,
+
+  NOTE_D6, NOTE_D6, NOTE_D6, NOTE_A5, NOTE_D6, NOTE_C6, NOTE_C6,
 
 };
 
@@ -659,6 +682,31 @@ static const float megalovania_tempo[] = {
 
   20, 20, 20/3, 20/3, 20, 20, 20,
   20, 20, 10, 20, 20, 20,
+  //repeat of first part
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+  //end of repeat
+
+  80, 10, 20, 20, 20, 20, 20,
+  80, 10, 20, 20, 4,
+
+  10, 20, 20, 20, 20, 20, 10,
+  40, 40, 40/3, 20, 20, 20, 10,
+
+  10, 20, 40/3, 20, 20, 20, 20,
+  20, 40/3, 20, 20, 20, 20/3,
+
+  10, 10, 20, 20, 20, 5, 4,
+
 };
 
 static const melody_t melody[NB_SONGS] = {
