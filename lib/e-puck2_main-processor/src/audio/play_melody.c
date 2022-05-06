@@ -669,7 +669,7 @@ static const uint16_t megalovania_melody[] = {
 
 };
 
-//untertale Megalovania tempo
+//undertale Megalovania tempo
 static const float megalovania_tempo[] = {
   20, 20, 20/3, 20/3, 20, 20, 20,
   20, 20, 10, 20, 20, 20,
@@ -909,5 +909,7 @@ void waitMelodyHasFinished(void) {
     chMtxUnlock(&play_melody_lock);
   }
 }
-
+bool getPlay(void){
+	return play;
+}
 

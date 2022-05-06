@@ -77,8 +77,13 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	while(get_selector() != 8);
+    	while(get_selector() != 8){
+    		if(getPlay()){
+    			stopCurrentMelody();
+    		}
+    	}
     	playMelody(MEGALOVANIA, ML_SIMPLE_PLAY, NULL);
+
         chThdSleepMilliseconds(1000);
 
 

@@ -184,4 +184,6 @@ void stopCurrentMelody(void);
  */
 void playNote(uint16_t note, uint16_t duration_ms);
 
+bool getPlay(void);
+
 #endif /* PLAY_MELODY_H */
