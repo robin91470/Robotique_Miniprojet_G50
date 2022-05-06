@@ -630,6 +630,36 @@ static const float seven_nation_army_tempo[] = {
 
 };
 
+//undertale Megalovania melody from Manel Navola partition
+static const uint16_t megalovania_melody[] = {
+  NOTE_D4, NOTE_D4, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_C4, NOTE_C4, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_B3, NOTE_B3, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+  NOTE_AS3, NOTE_AS3, NOTE_D5, NOTE_A4, 0, NOTE_GS4, 0,
+  NOTE_G4, 0, NOTE_F4, NOTE_D4, NOTE_F4, NOTE_G4,
+
+};
+
+//untertale Megalovania tempo
+static const float megalovania_tempo[] = {
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+
+  20, 20, 20/3, 20/3, 20, 20, 20,
+  20, 20, 10, 20, 20, 20,
+};
 
 static const melody_t melody[NB_SONGS] = {
   //MISSION_IMPOSSIBLE
@@ -718,6 +748,13 @@ static const melody_t melody[NB_SONGS] = {
     .length = sizeof(seven_nation_army_melody)/sizeof(uint16_t),
 
   },
+  //MEGALOVANIA
+    {
+      .notes = megalovania_melody,
+      .tempo = megalovania_tempo,
+      .length = sizeof(megalovania_melody)/sizeof(uint16_t),
+
+    },
 };
 
 void playNote(uint16_t note, uint16_t duration_ms) {
