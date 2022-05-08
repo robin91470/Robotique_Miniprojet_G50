@@ -13,6 +13,8 @@ CSRC += ./main.c \
 		./pi_regulator.c \
 		./process_image.c \
 		./walk.c \
+		./approach_tag.c \
+		./melody_player.c \
 #Header folders to include
 INCDIR += 
 

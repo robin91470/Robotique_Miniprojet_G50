@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <hal.h>
 
-#define MOTOR_H
 #define MOTOR1_A	GPIOE, 9
 #define MOTOR1_B	GPIOE, 8
 #define MOTOR1_C	GPIOE, 11
