@@ -15,6 +15,7 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
+#include <audio/audio_thread.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
@@ -56,6 +57,10 @@ int main(void)
 	//inits the motors
 	motors_init();
 	//uint8_t RAF = 2+2;
+	dac_start();//pas sur qu'il faille le mettre
+	setSoundFileVolume(10);
+	playMelodyStart();//lance le module
+
 
 	walk_start();
 

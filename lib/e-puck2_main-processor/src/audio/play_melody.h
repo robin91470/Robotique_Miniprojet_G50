@@ -1,12 +1,9 @@
 /*
-
 File    : play_melody.h
 Author  : Eliot Ferragni
 Date    : 4 january 2018
 REV 1.0
-
 Functions and defines to play little melodies on the speaker
-
 Adapted from the code written by Dipto Pratyaksa
 taken at https://www.princetronics.com/supermariothemesong/
 */
@@ -18,18 +15,18 @@ taken at https://www.princetronics.com/supermariothemesong/
 #include <ch.h>
 #include <hal.h>
 
-#define NOTE_B0  31
-#define NOTE_C1  33
-#define NOTE_CS1 35
-#define NOTE_D1  37
-#define NOTE_DS1 39
-#define NOTE_E1  41
-#define NOTE_F1  44
-#define NOTE_FS1 46
-#define NOTE_G1  49
-#define NOTE_GS1 52
-#define NOTE_A1  55
-#define NOTE_AS1 58
+#define NOTE_B0  31 //si
+#define NOTE_C1  33	//do
+#define NOTE_CS1 35	//do #
+#define NOTE_D1  37	//ré
+#define NOTE_DS1 39 //ré #
+#define NOTE_E1  41	//mi
+#define NOTE_F1  44	//fa
+#define NOTE_FS1 46	//fa #
+#define NOTE_G1  49	//sol
+#define NOTE_GS1 52	//sol #
+#define NOTE_A1  55 //la
+#define NOTE_AS1 58 //la #
 #define NOTE_B1  62
 #define NOTE_C2  65
 #define NOTE_CS2 69
@@ -125,6 +122,10 @@ typedef enum{
 	STARWARS,
 	SANDSTORMS,
 	SEVEN_NATION_ARMY,
+	MEGALOVANIA,
+	POKEMON_TRAINER_BATTLE,
+	VICTORY_FANFARE,
+	THE_TAVERN_SONG,
 
 	NB_SONGS,	//tell the number of internal songs
 	//the following should be used if an external song has to be used 
@@ -182,5 +183,7 @@ void stopCurrentMelody(void);
  * 					
  */
 void playNote(uint16_t note, uint16_t duration_ms);
+
+bool getPlay(void);
 
 #endif /* PLAY_MELODY_H */
