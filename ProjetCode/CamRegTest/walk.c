@@ -8,15 +8,12 @@
 #include <main.h>
 #include <motors.h>
 #include <walk.h>
+#include <selector.h>
 
-#define WALK_SPEED		500
-#define TRIANGLE_ANGLE
-#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 
-#define PI                  3.1415926536f
-//TO ADJUST IF NECESSARY. NOT ALL THE E-PUCK2 HAVE EXACTLY THE SAME WHEEL DISTANCE
-#define WHEEL_DISTANCE      5.35f    //cm
-#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
+#define SPEED_TRIANGLE		1000//step*s^-1
+#define TIME_TURN_TRIANGLE	1000*(PERIMETER_EPUCK/6)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
+#define TIME_SEGMENT_TRIANGLE	1000*(PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
 
 
 static THD_WORKING_AREA(waWalk, 1024);
@@ -25,13 +22,32 @@ static THD_FUNCTION(Walk, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
     systime_t time;
+	while(1){
+    for(unsigned int i=0; i<3; i++){
+		left_motor_set_speed(SPEED_TRIANGLE);
+		right_motor_set_speed(-SPEED_TRIANGLE);
+		chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
+		left_motor_set_speed(SPEED_TRIANGLE);
+		right_motor_set_speed(SPEED_TRIANGLE);
+		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
+		left_motor_set_speed(0);
+		right_motor_set_speed(0);
+		if(get_selector()==0){
+			//chThdTerminate(Walk);
+			break;
+
+		}
+    }
+	chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
 
 
 
-    chThdYield();
-    //chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
+
+
+
+    chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
 }
-
+}
 
 void walk_start(void){
 	chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, Walk, NULL);
