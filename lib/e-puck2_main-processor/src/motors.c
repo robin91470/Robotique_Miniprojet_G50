@@ -6,6 +6,9 @@
 #define MOTOR_TIMER_FREQ 100000 // [Hz]
 #define THRESV 650 // This is the speed under which the power save feature is active.
 
+
+
+
 static const uint8_t step_halt[4] = {0, 0, 0, 0};
 //table of the differents steps of to control the motors
 //it corresponds to microsteps.
@@ -314,5 +317,33 @@ void motors_init(void)
     pwmEnablePeriodicNotification(&PWMD4); // PWM general interrupt at the beginning of the period to handle motor steps.
 
 }
+/*
+void motors_set_speed(int speed_r, int speed_l)
+{
+	if(speed_r <= MOTOR_SPEED_LIMIT){
+		right_motor_set_speed(MOTOR_SPEED_LIMIT);
+		left_motor_set_speed(MOTOR_SPEED_LIMIT);
+	}
+	if(speed_l <= MOTOR_SPEED_LIMIT){
+		right_motor_set_speed(speed_r);
+		left_motor_set_speed(speed_l);
+	}
+}
+*/
+/*
+void motors_set_pos(int32_t counter_value_r, int32_t counter_value_l){
+	right_motor_set_pos(counter_value_r);
+	left_motor_set_pos(counter_value_l);
+}
+*/
+
+/*void motors_set_position(int32_t position_r, int32_t position_l, int speed_r, int speed_l)
+{
+	motors_set_speed(speed_r, speed_l);
+	motors_set_pos(position_r, position_l);
+
+}
+*/
+
 
 /**************************END PUBLIC FUNCTIONS***********************************/

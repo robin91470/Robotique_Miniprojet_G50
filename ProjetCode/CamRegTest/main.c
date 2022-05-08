@@ -18,7 +18,20 @@
 
 #include <pi_regulator.h>
 #include <process_image.h>
+#include <walk.h>
 
+
+#define NSTEP_ONE_TURN      1000
+
+#define PI                  3.1415926536f
+//TO ADJUST IF NECESSARY. NOT ALL THE E-PUCK2 HAVE EXACTLY THE SAME WHEEL DISTANCE
+#define WHEEL_DISTANCE      5.35f    //cm
+#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
+#define SPEED_TRIANGLE		1000
+#define TIME_TURN_TRIANGLE	1000*(PERIMETER_EPUCK/6)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
+#define TIME_SEGMENT_TRIANGLE	1000*(PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
+
+int32_t HALF_TURN = (PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE);
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
@@ -56,13 +69,27 @@ int main(void)
 	motors_init();
 	//uint8_t RAF = 2+2;
 	//stars the threads for the pi regulator and the processing of the image
-	pi_regulator_start();
-	process_image_start();
+	//pi_regulator_start();
+	//process_image_start();
+	//walk_start();
+
+
+
 
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(1000);
+    	for(unsigned int i=0; i<3; i++){
+    		left_motor_set_speed(SPEED_TRIANGLE);
+    		right_motor_set_speed(-SPEED_TRIANGLE);
+    		chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
+    		left_motor_set_speed(SPEED_TRIANGLE);
+    		right_motor_set_speed(SPEED_TRIANGLE);
+    		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
+    	}
+    	left_motor_set_speed(0);
+    	right_motor_set_speed(0);
+    	chThdSleepMilliseconds(5000);
     }
 }
 
