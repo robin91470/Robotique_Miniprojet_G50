@@ -24,7 +24,11 @@ static THD_FUNCTION(Walk, arg) {
     systime_t time;
 	while(1){
     for(unsigned int i=0; i<3; i++){
-		left_motor_set_speed(SPEED_TRIANGLE);
+    	if(get_selector()==0){
+    				//chThdTerminate(Walk);
+    				break;
+    			}
+    	left_motor_set_speed(SPEED_TRIANGLE);
 		right_motor_set_speed(-SPEED_TRIANGLE);
 		chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
 		left_motor_set_speed(SPEED_TRIANGLE);
@@ -32,13 +36,14 @@ static THD_FUNCTION(Walk, arg) {
 		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-		if(get_selector()==0){
-			//chThdTerminate(Walk);
-			break;
 
-		}
+
     }
 	chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
+	if(get_selector()==0){
+				//chThdTerminate(Walk);
+				break;
+			}
 
 
 
