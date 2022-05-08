@@ -13,7 +13,7 @@
 static unsigned int line_position = IMAGE_BUFFER_SIZE/2;
 static unsigned int last_width = 0;
 
-static unsigned int detection_line_width(uint8_t* image);
+static uint8_t detection_lines(uint8_t* image);
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
@@ -88,20 +88,21 @@ void process_image_start(void){
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
 
-
-static unsigned int detection_line_width(uint8_t* image) {
-	unsigned int width = 0, begin = 0, end = 0;
-	uint32_t mean = 0;
-	bool wrong_line = 0;
+//cette fonction compte le nombre de lignes afin de detecter un code barre
+static uint8_t detection_lines(uint8_t* image) {
+	// first_begin permet de trouver le départ de la première ligne
+	uint16_t width = 0, begin = 0, end = 0, first_begin = 0;
+	uint16_t mean = 0;
+	//compte le nombre de ligne
+	uint8_t line_counter = 0;
 	bool stop = 0, not_found = 0;
-	unsigned int counter = 0;
+	uint16_t counter = 0;
 
 	for(unsigned int i=0; i < IMAGE_BUFFER_SIZE; i++){
 		mean += image[i];
 	}
 	mean = mean/IMAGE_BUFFER_SIZE;
 	do{
-			wrong_line = 0;
 			//search for a begin
 			while(stop == 0 && counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
 			{
@@ -109,10 +110,14 @@ static unsigned int detection_line_width(uint8_t* image) {
 			    //to the mean of the image
 			    if(image[counter] > mean && image[counter+WIDTH_SLOPE] < mean)
 			    {
+			    	if(!begin){
+			    		first_begin = counter;
+			    	}
 			        begin = counter;
 			        stop = 1;
+
 			    }
-			    counter++;
+			    counter ++;
 			}
 			//if a begin was found, search for an end
 			if (counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE) && begin)
@@ -125,11 +130,15 @@ static unsigned int detection_line_width(uint8_t* image) {
 			        {
 			            end = counter;
 			            stop = 1;
+			            if((end-begin) < LINE_WIDTH_MIN){
+			            	line_counter ++;
+			            }
+
 			        }
-			        counter++;
+			        counter ++;
 			    }
-			    //if an end was not found
-			    if (counter > IMAGE_BUFFER_SIZE || !end)
+			    //if an end was not found and there is no other lines
+			    if ((counter > IMAGE_BUFFER_SIZE || !end) && !first_begin)
 			    {
 			        not_found = 1;
 			    }
@@ -145,23 +154,22 @@ static unsigned int detection_line_width(uint8_t* image) {
 				begin = 0;
 				end = 0;
 				stop = 0;
-				wrong_line = 1;
 			}
-		}while(wrong_line);
+		}while(counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE));
 
 		if(not_found){
 			begin = 0;
 			end = 0;
-			width = last_width;
+			line_counter = 0;
 		}else{
 			last_width = width = (end - begin);
-			line_position = (begin + end)/2; //gives the line position.
+			line_position = (first_begin + end)/2; //gives the line position.
 		}
 		if(width < PXTOCM/MAX_DIST){
 			width = PXTOCM/MAX_DIST;
 			last_width = width;
 		}
-	return width;
+	return line_counter;
 }
 uint16_t get_line_position(void){
 	return line_position;
