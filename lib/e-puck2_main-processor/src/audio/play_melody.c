@@ -709,6 +709,130 @@ static const float megalovania_tempo[] = {
 
 };
 
+// Pokemon trainer battle melody from Bespinben partition
+static const uint16_t pokemon_trainer_battle_melody[] = {
+
+  NOTE_A5, NOTE_G5, NOTE_F5, NOTE_E5, NOTE_A5, NOTE_E5, NOTE_F5, NOTE_E5,
+  NOTE_A5, NOTE_DS5, NOTE_E5, NOTE_DS5, NOTE_A5, NOTE_D5, NOTE_DS5, NOTE_D5,
+
+  NOTE_A5, NOTE_CS5, NOTE_D5, NOTE_CS5, NOTE_A5, NOTE_C5, NOTE_CS5, NOTE_C5,
+  NOTE_A5, NOTE_B4, NOTE_C5, NOTE_B4, NOTE_A5, NOTE_AS4, NOTE_B4, NOTE_AS4,
+
+  NOTE_AS4, 0, NOTE_E4, 0, NOTE_F4, 0,
+
+  NOTE_D4, NOTE_E4, 0, NOTE_F4, 0, NOTE_C5, 0,
+};
+
+//Pokemon trainer battle tempo
+static const float pokemon_trainer_battle_tempo[] = {
+
+  30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 30, 30, 30,
+
+  30, 30, 30, 30, 30, 30, 30, 30,
+  30, 30, 30, 30, 30, 30, 30, 30,
+
+  15, 15/2, 15, 15/2, 15, 15,
+  15, 15, 15, 15, 15/2, 15, 15,
+};
+
+// Victory Fanfare melody from Nobuo Uematsu partition
+static const uint16_t victory_fanfare_melody[] = {
+
+  NOTE_D5, NOTE_D5, NOTE_D5, NOTE_D5, NOTE_A4, NOTE_C5,
+  NOTE_D5, NOTE_C5, NOTE_D5,
+
+};
+
+//Victory Fanfare tempo
+static const float victory_fanfare_tempo[] = {
+
+  15, 15, 15, 5, 5, 5,
+  5, 10, 5/3,
+};
+
+// The Tavern Song melody from Chrasher partition
+static const uint16_t the_tavern_song_melody[] = {
+
+  NOTE_FS5, NOTE_CS6, NOTE_CS6, NOTE_B5, NOTE_CS6, NOTE_CS6, NOTE_DS6,
+  NOTE_E6, NOTE_FS6, NOTE_E6, NOTE_DS6, NOTE_CS6, NOTE_B5,
+
+  NOTE_FS5, NOTE_CS6, NOTE_CS6, NOTE_B5, NOTE_CS6, NOTE_DS6, NOTE_CS6,
+  NOTE_B5, NOTE_GS5, NOTE_E5, NOTE_GS5, NOTE_FS5,
+
+  NOTE_FS5, NOTE_CS6, NOTE_CS6, NOTE_B5, NOTE_CS6, NOTE_CS6, NOTE_DS6,
+  NOTE_E6, NOTE_FS6, NOTE_E6, NOTE_DS6, NOTE_CS6, NOTE_B5,
+
+  NOTE_D6, NOTE_E6, NOTE_D6, NOTE_CS6, NOTE_B5, NOTE_A5,
+  NOTE_FS5, 0,
+
+  NOTE_CS5, NOTE_FS5, NOTE_FS5, NOTE_E5, NOTE_FS5, NOTE_GS5,
+  NOTE_A5, NOTE_B5, NOTE_A5, NOTE_GS5, NOTE_FS5, NOTE_E5,
+
+  NOTE_CS5, NOTE_FS5, NOTE_FS5, NOTE_E5, NOTE_FS5, NOTE_GS5,
+  NOTE_A5, NOTE_E5, NOTE_CS5, NOTE_A5, NOTE_GS5,
+
+  NOTE_CS5, NOTE_FS5, NOTE_FS5, NOTE_E5, NOTE_FS5, NOTE_GS5,
+  NOTE_A5, NOTE_B5, NOTE_A5, NOTE_GS5, NOTE_FS5, NOTE_E5,
+
+  NOTE_A5, NOTE_FS5, NOTE_A5, NOTE_B5, NOTE_A5, NOTE_GS5,
+  NOTE_FS5, 0,
+
+  NOTE_FS4, NOTE_CS5, NOTE_CS5, NOTE_DS5, NOTE_E5, NOTE_DS5, NOTE_CS5,
+  NOTE_DS5, NOTE_CS5, NOTE_B4, NOTE_CS5,
+
+  NOTE_FS4, NOTE_GS4, NOTE_A4, NOTE_GS4, NOTE_A4, NOTE_B4,
+  NOTE_CS5, NOTE_B4, NOTE_A4, NOTE_GS4,
+
+  NOTE_FS4, NOTE_CS5, NOTE_CS5, NOTE_DS5, NOTE_E5, NOTE_DS5, NOTE_CS5,
+  NOTE_DS5, NOTE_CS5, NOTE_B4, NOTE_CS5,
+
+  NOTE_A4, NOTE_B4, NOTE_A4, NOTE_GS4, NOTE_FS4, NOTE_E4,
+  NOTE_FS4, 0,
+
+};
+
+//The Tavern Song tempo
+static const float the_tavern_song_tempo[] = {
+
+  10, 10, 20, 20, 5, 20, 20,
+  10, 10, 10, 20, 20, 5,
+
+  10, 10, 20, 20, 5, 20, 20,
+  10, 20, 10, 20, 10/3,
+
+  10, 10, 20, 20, 5, 20, 20,
+  10, 10, 10, 20, 20, 5,
+
+  10, 10, 10, 20/3, 20, 10,
+  5/2, 5,
+
+  10, 10, 20, 20, 5, 10,
+  10, 10, 10, 20, 20, 5,
+
+  10, 10, 20, 20, 5, 10,
+  10, 20, 10, 20, 10/3,
+
+  10, 10, 20, 20, 5, 10,
+  10, 10, 10, 20, 20, 5,
+
+  10, 10, 10, 20/3, 20, 10,
+  5/2, 5,
+
+  10, 10, 20, 20, 10, 10, 10,
+  20/3, 20, 10, 10/3,
+
+  20/3, 20, 10, 10, 10, 10,
+  20/3, 20, 10, 10/3,
+
+  10, 10, 20, 20, 10, 10, 10,
+  20/3, 20, 10, 10/3,
+
+  20/3, 20, 10, 20/3, 20, 10,
+  5/2, 5,
+
+};
+
 static const melody_t melody[NB_SONGS] = {
   //MISSION_IMPOSSIBLE
   {
@@ -797,12 +921,33 @@ static const melody_t melody[NB_SONGS] = {
 
   },
   //MEGALOVANIA
-    {
-      .notes = megalovania_melody,
-      .tempo = megalovania_tempo,
-      .length = sizeof(megalovania_melody)/sizeof(uint16_t),
+  {
+    .notes = megalovania_melody,
+    .tempo = megalovania_tempo,
+    .length = sizeof(megalovania_melody)/sizeof(uint16_t),
 
-    },
+  },
+  //POKEMON_TRAINER_BATTLE
+  {
+	.notes = pokemon_trainer_battle_melody,
+	.tempo = pokemon_trainer_battle_tempo,
+	.length = sizeof(pokemon_trainer_battle_melody)/sizeof(uint16_t),
+
+  },
+  //VICTORY_FANFARE
+  {
+  	.notes = victory_fanfare_melody,
+  	.tempo = victory_fanfare_tempo,
+  	.length = sizeof(victory_fanfare_melody)/sizeof(uint16_t),
+
+  },
+	//THE_TAVERN_SONG
+  {
+	.notes = the_tavern_song_melody,
+	.tempo = the_tavern_song_tempo,
+	.length = sizeof(the_tavern_song_melody)/sizeof(uint16_t),
+
+  },
 };
 
 void playNote(uint16_t note, uint16_t duration_ms) {

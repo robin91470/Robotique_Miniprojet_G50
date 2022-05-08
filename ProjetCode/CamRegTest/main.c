@@ -82,7 +82,7 @@ int main(void)
     			stopCurrentMelody();
     		}
     	}
-    	playMelody(MEGALOVANIA, ML_SIMPLE_PLAY, NULL);
+    	playMelody(SANDSTORMS, ML_SIMPLE_PLAY, NULL);
 
         chThdSleepMilliseconds(1000);
 
