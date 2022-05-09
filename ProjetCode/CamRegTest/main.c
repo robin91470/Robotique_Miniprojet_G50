@@ -24,6 +24,8 @@
 #include <process_image.h>
 #include <walk.h>
 
+#include <pid_distance.h>
+
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
@@ -57,6 +59,8 @@ int main(void)
     //starts the camera
     dcmi_start();
 	po8030_start();
+	VL53L0X_start();
+	process_image_start();
 	//inits the motors
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
@@ -65,7 +69,8 @@ int main(void)
 	melody_player_start();
 	setSoundFileVolume(10);
 	playMelodyStart();//lance le module
-	melody_player_start();
+	//melody_player_start();
+
 	//walk_start();
 
 
@@ -74,8 +79,10 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-
-    	chThdSleepMilliseconds(1000);
+    	if(get_barcode() == 3){
+    		chprintf((BaseSequentialStream *)&SD3,'il y a 3 lignes \r\n');
+    	}
+    	chThdSleepMilliseconds(100);
 
     }
 }
