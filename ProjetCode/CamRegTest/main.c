@@ -61,7 +61,7 @@ int main(void)
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
 	setSoundFileVolume(10);
-	//playMelodyStart();//lance le module
+	playMelodyStart();//lance le module
 	//walk_start();
 
 
