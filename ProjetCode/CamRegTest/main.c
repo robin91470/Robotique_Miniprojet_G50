@@ -82,7 +82,7 @@ int main(void)
     			stopCurrentMelody();
     		}
     	}
-    	playMelody(SANDSTORMS, ML_SIMPLE_PLAY, NULL);
+    	playMelody(THE_TAVERN_SONG, ML_SIMPLE_PLAY, NULL);
 
         chThdSleepMilliseconds(1000);
 
