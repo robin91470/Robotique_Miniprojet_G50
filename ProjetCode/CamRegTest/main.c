@@ -60,8 +60,9 @@ int main(void)
 	//inits the motors
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
-	setSoundFileVolume(10);
-	//playMelodyStart();//lance le module
+	setSoundFileVolume(5);
+	playMelodyStart();//lance le module
+	melody_player_start();
 	//walk_start();
 
 
@@ -70,12 +71,7 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	if(get_selector() == 8){
-    		playMelody(VICTORY_FANFARE, ML_SIMPLE_PLAY, NULL);
-    	}
-    	else if(getPlay()){
-    		stopCurrentMelody();
-    	}
+
     	chThdSleepMilliseconds(1000);
 
     }
