@@ -65,6 +65,9 @@ int main(void)
     	//waits 1 second
 //    	chprintf((BaseSequentialStream *)&SD3, "DISTANCE SENSOR\r\n");
 //    	chprintf((BaseSequentialStream *)&SD3, "%d\r\n\n", VL53L0X_get_dist_mm());
+    	if(get_barcode() == 3){
+    		chprintf((BaseSequentialStream *)&SD3,'il y a 3 lignes \r\n');
+    	}
         chThdSleepMilliseconds(100);
     }
 }

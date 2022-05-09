@@ -11,7 +11,7 @@
 
 
 static unsigned int line_position = IMAGE_BUFFER_SIZE/2;
-static unsigned int last_width = 0;
+static uint8_t barcode_lines = 0;
 
 static uint8_t detection_lines(uint8_t* image);
 //semaphore
@@ -55,7 +55,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 //	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_rouge[IMAGE_BUFFER_SIZE] = {0};
 //	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
-	unsigned int width = 0;
+	// inits barcode line counter
+
 
     while(1){
 
@@ -73,7 +74,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
 		}
 		SendUint8ToComputer(image_rouge, IMAGE_BUFFER_SIZE);
-		//width = detection_line_width(image_rouge);
+		barcode_lines = detection_lines(image_rouge);
 
 		//chprintf((BaseSequentialStream *)&SD3, "%middle=%d and width=%d \r \n", line_position, width);
 		/*
@@ -110,7 +111,7 @@ static uint8_t detection_lines(uint8_t* image) {
 			    //to the mean of the image
 			    if(image[counter] > mean && image[counter+WIDTH_SLOPE] < mean)
 			    {
-			    	if(!begin){
+			    	if(!first_begin){
 			    		first_begin = counter;
 			    	}
 			        begin = counter;
@@ -143,7 +144,7 @@ static uint8_t detection_lines(uint8_t* image) {
 			        not_found = 1;
 			    }
 			}
-			else//if no begin was found
+			else if(!first_begin)//if no begin was found
 			{
 			    not_found = 1;
 			}
@@ -158,19 +159,21 @@ static uint8_t detection_lines(uint8_t* image) {
 		}while(counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE));
 
 		if(not_found){
+			first_begin = 0;
 			begin = 0;
 			end = 0;
 			line_counter = 0;
 		}else{
-			last_width = width = (end - begin);
 			line_position = (first_begin + end)/2; //gives the line position.
+
 		}
-		if(width < PXTOCM/MAX_DIST){
-			width = PXTOCM/MAX_DIST;
-			last_width = width;
-		}
+
 	return line_counter;
 }
 uint16_t get_line_position(void){
 	return line_position;
+}
+
+uint8_t get_barcode(void){
+	return barcode_lines;
 }
