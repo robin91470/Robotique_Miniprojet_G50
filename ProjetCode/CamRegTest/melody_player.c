@@ -12,20 +12,15 @@ static THD_FUNCTION(Melody_player, arg) {
     (void)arg;
     systime_t time;
 
-
     while (1) {
     	//waits 1 second
-    	while(get_selector() != 8){
-    		if(getPlay()){
-    			stopCurrentMelody();
-    		}
+    	if(get_selector() == 8){
+    		playMelody(VICTORY_FANFARE, ML_SIMPLE_PLAY, NULL);
     	}
-    	playMelody(SANDSTORMS, ML_SIMPLE_PLAY, NULL);
-
+    	else if(getPlay()){
+    		stopCurrentMelody();
+    	}
         chThdSleepMilliseconds(1000);
-
-
-
     }
 }
 

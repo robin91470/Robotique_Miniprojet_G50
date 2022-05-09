@@ -35,8 +35,6 @@ static THD_FUNCTION(Walk, arg) {
 		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
 		left_motor_set_speed(0);
 		right_motor_set_speed(0);
-
-
     }
 	chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
 	if(get_selector()==0){

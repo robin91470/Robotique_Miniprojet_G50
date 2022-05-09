@@ -13,9 +13,12 @@
 #include <chprintf.h>
 #include <sensors/proximity.h>
 #include <sensors/VL53L0X/VL53L0X.h>
+#include <selector.h>
+
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
 #include <audio/audio_thread.h>
+#include <melody_player.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
@@ -56,13 +59,10 @@ int main(void)
 	po8030_start();
 	//inits the motors
 	motors_init();
-	//uint8_t RAF = 2+2;
 	dac_start();//pas sur qu'il faille le mettre
 	setSoundFileVolume(10);
-	playMelodyStart();//lance le module
-
-
-	walk_start();
+	//playMelodyStart();//lance le module
+	//walk_start();
 
 
 
@@ -70,6 +70,12 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
+    	if(get_selector() == 8){
+    		playMelody(VICTORY_FANFARE, ML_SIMPLE_PLAY, NULL);
+    	}
+    	else if(getPlay()){
+    		stopCurrentMelody();
+    	}
     	chThdSleepMilliseconds(1000);
 
     }
