@@ -73,7 +73,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//rajoute les 3 bits du msb situé sur l'indice suivant sur img_buff_ptr
 			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
 		}
-		SendUint8ToComputer(image_rouge, IMAGE_BUFFER_SIZE);
+//		SendUint8ToComputer(image_rouge, IMAGE_BUFFER_SIZE);
 		barcode_lines = detection_lines(image_rouge);
 
 		//chprintf((BaseSequentialStream *)&SD3, "%middle=%d and width=%d \r \n", line_position, width);
@@ -91,8 +91,8 @@ void process_image_start(void){
 
 //cette fonction compte le nombre de lignes afin de detecter un code barre
 static uint8_t detection_lines(uint8_t* image) {
-	// first_begin permet de trouver le départ de la première ligne
-	uint16_t width = 0, begin = 0, end = 0, first_begin = 0;
+	// first_begin permet de trouver le départ de la première ligne et last end la dernière
+	uint16_t begin = 0, end = 0, first_begin = 0, last_end = 0;
 	uint16_t mean = 0;
 	//compte le nombre de ligne
 	uint8_t line_counter = 0;
@@ -103,21 +103,24 @@ static uint8_t detection_lines(uint8_t* image) {
 		mean += image[i];
 	}
 	mean = mean/IMAGE_BUFFER_SIZE;
+//	chprintf((BaseSequentialStream *)&SD3, "%Avant while \r \n");
 	do{
 			//search for a begin
 			while(stop == 0 && counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE))
 			{
 				//the slope must at least be WIDTH_SLOPE wide and is compared
 			    //to the mean of the image
-			    if(image[counter] > mean && image[counter+WIDTH_SLOPE] < mean)
+			    if(image[counter] > mean && image[counter+WIDTH_SLOPE] < mean && (counter-last_end) > LINE_WIDTH_MIN
+			    		&& ((counter-last_end) > MAX_SPACE || !line_counter) )
 			    {
 			    	if(!first_begin){
 			    		first_begin = counter;
 			    	}
 			        begin = counter;
 			        stop = 1;
-
+			        //chprintf((BaseSequentialStream *)&SD3, "%coucou \r \n");
 			    }
+				//chprintf((BaseSequentialStream *)&SD3, "%nombre du counter =%d\r \n", counter);
 			    counter ++;
 			}
 			//if a begin was found, search for an end
@@ -130,8 +133,9 @@ static uint8_t detection_lines(uint8_t* image) {
 			        if(image[counter] > mean && image[counter-WIDTH_SLOPE] < mean)
 			        {
 			            end = counter;
+			            last_end = end;
 			            stop = 1;
-			            if((end-begin) < LINE_WIDTH_MIN){
+			            if((end-begin) > LINE_WIDTH_MIN){
 			            	line_counter ++;
 			            }
 
@@ -139,19 +143,19 @@ static uint8_t detection_lines(uint8_t* image) {
 			        counter ++;
 			    }
 			    //if an end was not found and there is no other lines
-			    if ((counter > IMAGE_BUFFER_SIZE || !end) && !first_begin)
+			    if (counter > IMAGE_BUFFER_SIZE  && !line_counter && !last_end)
 			    {
 			        not_found = 1;
 			    }
 			}
-			else if(!first_begin)//if no begin was found
+			else if(!first_begin && !line_counter)//if no begin was found
 			{
 			    not_found = 1;
 			}
 
-			//if a line too small has been detected, continues the search
-			if(!not_found && (end-begin) < LINE_WIDTH_MIN){
-				counter = end;
+			//if a line has been detected, continues the search
+			if(!not_found && counter < (IMAGE_BUFFER_SIZE - WIDTH_SLOPE)){
+				counter = end ;
 				begin = 0;
 				end = 0;
 				stop = 0;
@@ -162,12 +166,12 @@ static uint8_t detection_lines(uint8_t* image) {
 			first_begin = 0;
 			begin = 0;
 			end = 0;
+			last_end = 0;
 			line_counter = 0;
 		}else{
-			line_position = (first_begin + end)/2; //gives the line position.
-
+			line_position = (first_begin + last_end)/2; //gives the line position.
 		}
-
+	chprintf((BaseSequentialStream *)&SD3, "%nombre de ligne =%d\r \n", line_counter);
 	return line_counter;
 }
 uint16_t get_line_position(void){

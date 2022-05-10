@@ -20,7 +20,6 @@
 #include <audio/audio_thread.h>
 #include <melody_player.h>
 
-#include <pi_regulator.h>
 #include <process_image.h>
 #include <walk.h>
 
@@ -59,16 +58,14 @@ int main(void)
     //starts the camera
     dcmi_start();
 	po8030_start();
-	VL53L0X_start();
+//	VL53L0X_start();
 	process_image_start();
 	//inits the motors
 	motors_init();
-	dac_start();//pas sur qu'il faille le mettre
-	setSoundFileVolume(5);
-	playMelodyStart();//lance le module
-	melody_player_start();
-	setSoundFileVolume(10);
-	playMelodyStart();//lance le module
+//	dac_start();//pas sur qu'il faille le mettre
+//	setSoundFileVolume(5);
+//	playMelodyStart();//lance le module
+
 	//melody_player_start();
 
 	//walk_start();
@@ -79,11 +76,10 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	if(get_barcode() == 3){
-    		chprintf((BaseSequentialStream *)&SD3,'il y a 3 lignes \r\n');
-    	}
+//    	if(get_barcode() == 3){
+//    		chprintf((BaseSequentialStream *)&SD3, "il y a 3 lignes \r\n");
+//    	}
     	chThdSleepMilliseconds(100);
-
     }
 }
 
