@@ -10,7 +10,7 @@
 
 
 
-static unsigned int line_position = IMAGE_BUFFER_SIZE/2;
+static uint8_t line_position = IMAGE_BUFFER_SIZE/2;
 static bool line_detection_red = 0;
 static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
@@ -45,7 +45,7 @@ static THD_FUNCTION(CaptureImage, arg) {
 }
 
 
-static THD_WORKING_AREA(waProcessImage, 1024);
+static THD_WORKING_AREA(waProcessImage, 2*1024);
 static THD_FUNCTION(ProcessImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
@@ -55,13 +55,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_rouge[IMAGE_BUFFER_SIZE] = {0};
 //	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
-	// inits barcode line counter
 
 
     while(1){
 
     	//waits until an image has been captured
-        chBSemWait(&image_ready_sem);
         chBSemWait(&image_ready_sem);
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
@@ -73,11 +71,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//rajoute les 3 bits du msb situé sur l'indice suivant sur img_buff_ptr
 			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
 		}
-		SendUint8ToComputer(image_rouge, IMAGE_BUFFER_SIZE);
+//		SendUint8ToComputer(image_bleu, IMAGE_BUFFER_SIZE);
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
 
-		//chprintf((BaseSequentialStream *)&SD3, "%middle=%d and width=%d \r \n", line_position, width);
     }
 }
 
@@ -89,12 +86,11 @@ void process_image_start(void){
 
 //cette fonction renvoie la detection d'une ligne de couleur
 static bool detection_line(uint8_t* image) {
-	uint16_t  begin = 0, end = 0;
+	uint16_t  begin = 0, end = 0, counter = 0;
 	uint16_t mean = 0;
 	bool wrong_line = 0;
 	bool stop = 0, not_found = 0;
 	bool detect_line_color = 0;
-	unsigned int counter = 0;
 
 	for(unsigned int i=0; i < IMAGE_BUFFER_SIZE; i++){
 		mean += image[i];
@@ -155,7 +151,7 @@ static bool detection_line(uint8_t* image) {
 			detect_line_color = 0;
 		}else{
 			detect_line_color = 1;
-			line_position = (begin + end)/2; //gives the line position.
+			//line_position = (begin + end)/2; //gives the line position.
 		}
 
 	return detect_line_color;
