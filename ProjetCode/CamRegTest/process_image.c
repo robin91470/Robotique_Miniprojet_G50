@@ -77,8 +77,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
 		line_detection_avg();
-		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
-				line_detection_red, line_detection_blue);
+//		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
+//				line_detection_red, line_detection_blue);
+		chThdSleepMilliseconds(100);
+
 
     }
 }

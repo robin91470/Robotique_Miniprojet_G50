@@ -61,6 +61,7 @@ int main(void)
 //	pid_distance_start();
 	//inits the process of image
 	process_image_start();
+	scan_start();
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
