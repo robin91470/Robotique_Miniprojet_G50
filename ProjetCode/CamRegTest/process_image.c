@@ -10,7 +10,7 @@
 
 
 
-static uint8_t line_position = IMAGE_BUFFER_SIZE/2;
+//static uint16_t line_position = IMAGE_BUFFER_SIZE/2;
 static bool line_detection_red = 0;
 static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
@@ -26,6 +26,7 @@ static THD_FUNCTION(CaptureImage, arg) {
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
 	po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+	po8030_set_contrast(100);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
@@ -74,6 +75,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 //		SendUint8ToComputer(image_bleu, IMAGE_BUFFER_SIZE);
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
+		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
+				line_detection_red, line_detection_blue);
 
     }
 }
