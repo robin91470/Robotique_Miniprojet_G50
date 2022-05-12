@@ -18,6 +18,7 @@
 
 #include <pid_distance.h>
 #include <process_image.h>
+#include <scan.h>
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {

@@ -71,7 +71,6 @@ static THD_FUNCTION(PidRegulator, arg) {
     systime_t time;
 
     int16_t speed = 0;
-    int16_t speed_correction = 0;
 
     while(1){
         time = chVTGetSystemTime();

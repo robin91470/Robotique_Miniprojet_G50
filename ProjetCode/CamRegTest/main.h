@@ -23,10 +23,7 @@ extern "C" {
 #define KD						1.4f
 #define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 #define NB_SAMPLES				10
-#define SCAN_DIST				250.0f  //[mm]
-#define MAX_SCAN_DIST			600.0f  //[mm]
-#define ROTATION_SPEED			700 	//[step/s]
-#define SPEED_APPROACH			1000	//[step/s]
+
 
 /** Robot wide IPC bus. */
 extern messagebus_t bus;

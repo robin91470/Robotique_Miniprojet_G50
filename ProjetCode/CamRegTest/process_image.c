@@ -14,6 +14,7 @@
 static bool line_detection_red = 0;
 static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
+static void line_detection_avg(void);
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
@@ -75,6 +76,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 //		SendUint8ToComputer(image_bleu, IMAGE_BUFFER_SIZE);
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
+		line_detection_avg();
 		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
 				line_detection_red, line_detection_blue);
 
@@ -158,6 +160,35 @@ static bool detection_line(uint8_t* image) {
 		}
 
 	return detect_line_color;
+}
+
+static void line_detection_avg(void){
+		static bool previous_line_red[NB_SAMPLE_SCAN] = {0};
+		static bool previous_line_blue[NB_SAMPLE_SCAN] = {0};
+		static uint8_t circular_buffer = 0;
+		uint8_t detected_line_counter_red = 0;
+		uint8_t detected_line_counter_blue = 0;
+		previous_line_red[circular_buffer] = line_detection_red;
+		previous_line_blue[circular_buffer] = line_detection_blue;
+		for(uint8_t i=0; i<NB_SAMPLE_SCAN; i++){
+				if(previous_line_red[i]){
+					detected_line_counter_red ++;
+				}
+				if(previous_line_blue[i]){
+					detected_line_counter_blue ++;
+				}
+			}
+		if(detected_line_counter_red > (NB_SAMPLE_SCAN/2)){
+			line_detection_red = 1;
+		}else{
+			line_detection_red =  0;
+		}
+		if(detected_line_counter_blue > (NB_SAMPLE_SCAN/2)){
+					line_detection_blue = 1;
+		}else{
+					line_detection_blue =  0;
+		}
+		circular_buffer = (circular_buffer + 1) % NB_SAMPLE_SCAN;
 }
 bool get_line_detection_red(void){
 	return line_detection_red;
