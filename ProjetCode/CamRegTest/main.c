@@ -25,7 +25,12 @@
 #include <scan.h>
 #include <pid_distance.h>
 #include <avoid_obstacles.h>
+#include <beer.h>
 
+
+#define TIMEOUR_BEER_STROLL 15//[s] time before the epucks gets thirsty
+#define TAVERN_MODE_SELECTION 0//Nominal position the selector must be in to engage the tavern stroll
+#define HUNT_MODE_SELECTION 1 //Nominal position the selector must be in to engage the enemy hunting
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -61,36 +66,79 @@ int main(void)
     dcmi_start();
 	po8030_start();
 	VL53L0X_start();
-	ProcessImage_start_thd();
-	ProcessImage_pause_thd();
 	//inits the motors
 	motors_init();
-	dac_start();//pas sur qu'il faille le mettre
-
-	playMelodyStart();//lance le module
+	dac_start();
+	//Creation of diverse threads prior to their use in the scenario. They are immediately paused.
+	playMelodyStart();
 	setSoundFileVolume(10);
 	melody_player_start();
+	walk_start_thd();
+	walk_pause_thd();
+	avoid_obstacles_start_thd();
+	avoid_obstacles_pause_thd();
 
-
-//	avoid_obstacles_start_thd();
-//	walk_start_thd();
+	static systime_t beer_time;
+	static bool thirsty = false;
+	static bool tavern_threads_resumed = false;
 
     /* Infinite loop. */
     while (1) {
-    	//waits 1 second
-    	static bool lock = 0;
-    	if(!lock && get_selector() == 8){
-//    		playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
-//    		set_color_mode(COULEUR_ROUGE);
-//    		scan_start();
-    		pid_distance_start();
-    		lock = 1;
-    	}else if(lock && get_selector() != 8){
-    		lock = 0;
-//    		stopCurrentMelody();
+    	if(get_selector() ==TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
+    		if(!tavern_threads_resumed){
+				set_music_to_play(TAVERN_SONG);
+				walk_resume_thd();
+				avoid_obstacles_resume_thd();
+	    		tavern_threads_resumed = true;
+    		}
+    		thirsty = true;
+			while(get_selector()==TAVERN_MODE_SELECTION){//While the selector isn't switched manually, the epuck is locked in its tavern stroll
+				if((!beer_time)||!thirsty){//checks if time has been initialized or if a beer has been gotten
+					beer_time = chVTGetSystemTime();
+				}
+				if((chVTGetSystemTime() - beer_time) > S2ST(TIMEOUR_BEER_STROLL)){//The beer timeout delay has been reached, the epuck is thirsty
+					thirsty = true;
+					walk_pause_thd();
+					avoid_obstacles_pause_thd();
+					tavern_threads_resumed = false;
+					set_color_mode(COULEUR_BLEU);
+					scan_start();
+					beer_start();//Gets a beer
+					while(!get_beer_served()){
+						chThdSleepMilliseconds(100);//10Hz Refresh
+					}//A beer has been served and the epuck has  gotten away from the bar => can revert to tavern stroll
+					thirsty = false;
+					if(!tavern_threads_resumed){
+						walk_resume_thd();
+						avoid_obstacles_resume_thd();
+						tavern_threads_resumed = true;
+					}
+				}
+				chThdSleepMilliseconds(1000);//1Hz Refresh
+			}
+    	}else if(get_selector() == HUNT_MODE_SELECTION){
+			walk_pause_thd();
+			avoid_obstacles_pause_thd();
+			set_color_mode(COULEUR_ROUGE);
+			scan_start();//Scan for enemy: the epuck scans nearby objects using its TOF sensor
+			while(!get_good_color()){//Waits for the scan to identify the enemy
+				chThdSleepMilliseconds(100);//10Hz Refresh
+			}//The while loop ends => Enemy is detected
+			set_music_to_play(ENEMY_DETECTION_SONG);
+			waitMelodyHasFinished();
+			set_music_to_play(PURSUIT_SONG);
+			pid_distance_start();//Pursuit initialized
+			while(!get_job_is_done()){//Waits for the pursuit to finish
+				chThdSleepMilliseconds(100);//10Hz Refresh
+			}
+			set_music_to_play(VICTORY_SONG);//Enemy Hit. Victory is ours !
+			chThdSleepSeconds(5);
+		    set_music_to_play(NO_SONG);
+			while(((get_selector() == HUNT_MODE_SELECTION) || (get_selector() != TAVERN_MODE_SELECTION)) && get_job_is_done() ){
+				chThdSleepMilliseconds(100);//10Hz Refresh; Stays locked in if HUNT_MODE isn't manually disabled (through selector)
+			}
     	}
-    	chThdSleepMilliseconds(100);
-
+    	chThdSleepMilliseconds(100);//10Hz Refresh; After the sleep, the epuck goes back to it tavern stroll initialisation at beginning of principal while.
     }
 }
 

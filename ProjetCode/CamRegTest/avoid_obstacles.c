@@ -21,7 +21,7 @@ MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 static thread_t* ptr_avoid_obstacles;//Creates thread pointer
 
-
+static bool thd_is_created = false;
 static bool is_paused = false;//checkable boolean to pause/unpause the thread as necessary
 
 static THD_WORKING_AREA(waAvoidObstacles, 1024);
@@ -79,12 +79,15 @@ static THD_FUNCTION(avoid_obstacles, arg) {
 		}
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
-	chThdExit(0);
 }
 
 void avoid_obstacles_start_thd(void){
-	ptr_avoid_obstacles = chThdCreateStatic(waAvoidObstacles, sizeof(waAvoidObstacles), NORMALPRIO+8, avoid_obstacles, NULL);
-	is_paused = false;
+	if(!thd_is_created){
+		ptr_avoid_obstacles = chThdCreateStatic(waAvoidObstacles, sizeof(waAvoidObstacles), NORMALPRIO+8, avoid_obstacles, NULL);
+		is_paused = false;
+		thd_is_created = true;
+	}
+
 }
 
 
@@ -94,8 +97,8 @@ void avoid_obstacles_pause_thd(void){
 
 void avoid_obstacles_resume_thd(void){
 	chSysLock();
-	if (is_paused){
-	  chSchWakeupS(ptr_avoid_obstacles, CH_STATE_READY);
+	if (is_paused && thd_is_created){
+	  chSchWakeupS(ptr_avoid_obstacles, MSG_OK);
 	  is_paused = false;
 	}
 	chSysUnlock();

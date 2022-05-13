@@ -25,7 +25,7 @@ static couleur color_mode = COULEUR_AUTRE;
 // let know if we have found the objective
 static bool good_color = 0;
 
-static void scan_approach(int16_t dist_approach){
+void distance_approach(int16_t dist_approach){
 
 	int16_t step_approach = 0;
 	float time_approach = 0;
@@ -73,14 +73,13 @@ static THD_FUNCTION(Scan, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
     systime_t time;
-    good_color = 0;
 	while(1){
 		time = chVTGetSystemTime();
 		int16_t dist_approach = 0;
 		couleur color_scanned = 0;
 		if ((VL53L0X_get_dist_mm() < MAX_SCAN_DIST) && (VL53L0X_get_dist_mm() > MIN_SCAN_DIST)){
 			dist_approach = VL53L0X_get_dist_mm() - SCAN_DIST;
-			scan_approach(dist_approach);
+			distance_approach(dist_approach);
 			ProcessImage_resume_thd();
 			chThdSleepMilliseconds(TIME_TO_SCAN);
 			color_scanned = color_scan();
@@ -91,7 +90,7 @@ static THD_FUNCTION(Scan, arg) {
 				chThdExit(0);
 			}else{
 				good_color = 0;
-				scan_approach(-dist_approach);
+				distance_approach(-dist_approach);
 				left_motor_set_speed(ROTATION_SPEED);
 				right_motor_set_speed(-ROTATION_SPEED);
 				while(VL53L0X_get_dist_mm() < MAX_SCAN_DIST);
@@ -122,5 +121,6 @@ bool get_good_color(void){
 
 
 void scan_start(void){
+	good_color = 0;
 	chThdCreateStatic(waScan, sizeof(waScan), NORMALPRIO, Scan, NULL);
 }
