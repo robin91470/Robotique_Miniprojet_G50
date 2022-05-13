@@ -20,10 +20,9 @@
 #include <audio/audio_thread.h>
 #include <melody_player.h>
 
-#include <pi_regulator.h>
 #include <process_image.h>
 #include <walk.h>
-
+#include <scan.h>
 #include <pid_distance.h>
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
@@ -79,10 +78,7 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	if(get_barcode() == 3){
-    		chprintf((BaseSequentialStream *)&SD3,'il y a 3 lignes \r\n');
-    	}
-    	chThdSleepMilliseconds(100);
+    	    	chThdSleepMilliseconds(100);
 
     }
 }

@@ -22,33 +22,34 @@ static THD_FUNCTION(Walk, arg) {
     (void)arg;
     systime_t time;
 	while(1){
-    for(unsigned int i=0; i<3; i++){
-    	if(get_selector()==0){
-    				//chThdTerminate(Walk);
-    				break;
-    			}
-    	left_motor_set_speed(SPEED_TRIANGLE);
-		right_motor_set_speed(-SPEED_TRIANGLE);
-		chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
-		left_motor_set_speed(SPEED_TRIANGLE);
-		right_motor_set_speed(SPEED_TRIANGLE);
-		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-    }
-	chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
-	if(get_selector()==0){
-				//chThdTerminate(Walk);
-				break;
-			}
+		time = chVTGetSystemTime();
+		for(unsigned int i=0; i<3; i++){
+			if(get_selector()==0){
+						//chThdTerminate(Walk);
+						break;
+					}
+			left_motor_set_speed(SPEED_TRIANGLE);
+			right_motor_set_speed(-SPEED_TRIANGLE);
+			chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
+			left_motor_set_speed(SPEED_TRIANGLE);
+			right_motor_set_speed(SPEED_TRIANGLE);
+			chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
+			left_motor_set_speed(0);
+			right_motor_set_speed(0);
+		}
+		chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
+		if(get_selector()==0){
+					//chThdTerminate(Walk);
+					break;
+				}
 
 
 
 
 
 
-    chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
-}
+		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
+	}
 }
 
 void walk_start(void){

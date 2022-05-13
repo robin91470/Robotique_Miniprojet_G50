@@ -2,7 +2,7 @@
  * pid_distance.c
  *
  *  Created on: 29 avr. 2022
- *      Author: alexi
+ *      Author: alexis
  */
 
 
@@ -13,7 +13,7 @@
 #include <chprintf.h>
 
 
-#include <main.h>
+
 #include <motors.h>
 #include <pid_distance.h>
 #include <sensors/VL53L0X/VL53L0X.h>
@@ -71,23 +71,17 @@ static THD_FUNCTION(PidRegulator, arg) {
     systime_t time;
 
     int16_t speed = 0;
-    int16_t speed_correction = 0;
 
     while(1){
         time = chVTGetSystemTime();
 
         //computes the speed to give to the motors
         speed = pid_regulator(get_mean_distance_mm(), GOAL_DIST);
-        //computes a correction factor to let the robot rotate to be in front of the line
-//        speed_correction = pid_regulator(get_line_position(),IMAGE_BUFFER_SIZE/2);
-        //if the line is nearly in front of the camera, don't rotate
-//        if(abs(speed_correction) < ROTATION_THRESHOLD){
-//        	speed_correction = 0;
-//        }
 
-        //applies the speed from the PI regulator and the correction for the rotation
-		right_motor_set_speed(speed /*+ ROTATION_COEFF * speed_correction*/) ;
-		left_motor_set_speed(speed /*+ ROTATION_COEFF * speed_correction*/);
+
+        //applies the speed from the PID regulator
+		right_motor_set_speed(speed) ;
+		left_motor_set_speed(speed);
 
         //100Hz
         chThdSleepUntilWindowed(time, time + MS2ST(10));

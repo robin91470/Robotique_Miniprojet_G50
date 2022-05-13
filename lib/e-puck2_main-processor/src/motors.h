@@ -22,7 +22,7 @@
 //TO ADJUST IF NECESSARY. NOT ALL THE E-PUCK2 HAVE EXACTLY THE SAME WHEEL DISTANCE
 #define WHEEL_DISTANCE      5.35f    //cm
 #define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
-#define SPEED_STOP	0;
+#define SPEED_STOP			0
 
  /**
  * @brief   Sets the speed of the left motor

@@ -15,7 +15,7 @@ CSRC += ./main.c \
 		./walk.c \
 		./approach_tag.c \
 		./melody_player.c \
-		./distance.c \
+		./scan.c \
 		
 #Header folders to include
 INCDIR += 
