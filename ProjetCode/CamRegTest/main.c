@@ -67,8 +67,7 @@ int main(void)
 	playMelodyStart();//lance le module
 	melody_player_start();
 	setSoundFileVolume(10);
-	playMelodyStart();//lance le module
-	//melody_player_start();
+
 
 	//walk_start();
 

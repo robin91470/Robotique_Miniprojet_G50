@@ -8,11 +8,14 @@
 #ifndef SCAN_H_
 #define SCAN_H_
 void scan_start(void);
+// It's the color to scan
 typedef enum {
     COULEUR_AUTRE = 0x00,
     COULEUR_ROUGE = 0x01,
     COULEUR_BLEU = 0x02
 } couleur;
+
+//These parameters can be change for different environment
 #define SCAN_DIST				200.0f  //[mm]
 #define MAX_SCAN_DIST			400.0f  //[mm]
 #define MIN_SCAN_DIST			50.0f 	//[mm]

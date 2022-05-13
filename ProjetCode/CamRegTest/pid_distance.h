@@ -8,6 +8,7 @@
 #ifndef PID_DISTANCE_H_
 #define PID_DISTANCE_H_
 
+// These parameters can be change for different use
 #define MAX_DIST 				1000.0f //[mm]
 #define GOAL_DIST				50.0f   //[mm]
 #define ERROR_THRESHOLD			10.0f	//[mm] because of the noise of the camera
