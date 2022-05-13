@@ -3,48 +3,49 @@
 #include <audio/play_sound_file.h>
 #include <audio/play_melody.h>
 #include <selector.h>
+#include <melody_player.h>
 
+static music music_to_play = 0;
 
 static THD_WORKING_AREA(waMelodyPlayer, 1024);
 static THD_FUNCTION(Melody_player, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
-    systime_t time;
 
     while (1) {
     	//waits 1 second
-    	static uint8_t temp = 0;
+    	static music temp = NO_SONG;
 
-    	switch (get_selector()){
+    	switch (music_to_play){
     		default:
     			if(getPlay()){
     				stopCurrentMelody();
     			}
-    			temp = 0;
+    			temp = NO_SONG;
     			break;
-    		case 1:
-    			if(temp!=1){
+    		case TAVERN_SONG:
+    			if(temp!=TAVERN_SONG || !getPlay()){
     			playMelody(THE_TAVERN_SONG, ML_FORCE_CHANGE, NULL);
-    			temp = 1;
+    			temp = TAVERN_SONG;
     			}
     			break;
-    		case 2:
-    			if(temp!=2){
+    		case PURSUIT_SONG:
+    			if(temp!=PURSUIT_SONG || !getPlay()){
     			playMelody(MEGALOVANIA, ML_FORCE_CHANGE, NULL);
-    			temp = 2;
+    			temp = PURSUIT_SONG;
     			}
     			break;
-    		case 3:
-    			if(temp!=3){
+    		case ENEMI_DETECTION_SONG:
+    			if(temp!=ENEMI_DETECTION_SONG || !getPlay()){
     			playMelody(POKEMON_TRAINER_BATTLE, ML_FORCE_CHANGE, NULL);
-    			temp = 3;
+    			temp = ENEMI_DETECTION_SONG;
     			}
     			break;
-    		case 4:
-    			if(temp!=4){
+    		case VICTORY_SONG:
+    			if(temp!=VICTORY_SONG || !getPlay()){
     			playMelody(VICTORY_FANFARE, ML_FORCE_CHANGE, NULL);
-    			temp = 4;
+    			temp = VICTORY_SONG;
     			}
     			break;
     		}
@@ -56,4 +57,11 @@ static THD_FUNCTION(Melody_player, arg) {
 
 void melody_player_start(void){
 	chThdCreateStatic(waMelodyPlayer, sizeof(waMelodyPlayer), NORMALPRIO, Melody_player, NULL);
+}
+music get_music_to_play(void){
+	return music_to_play;
+}
+
+void set_music_to_play(uint8_t music_to_set){
+	music_to_play = music_to_set;
 }
