@@ -20,11 +20,14 @@
 #include <audio/audio_thread.h>
 #include <melody_player.h>
 
-#include <pi_regulator.h>
 #include <process_image.h>
 #include <walk.h>
 
 #include <pid_distance.h>
+#include <avoid_obstacles.h>
+
+
+
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -60,31 +63,41 @@ int main(void)
     dcmi_start();
 	po8030_start();
 	VL53L0X_start();
-	process_image_start();
+
+	//process_image_start();
 	//inits the motors
 	motors_init();
-	dac_start();//pas sur qu'il faille le mettre
+	dac_start();
 	setSoundFileVolume(5);
 	playMelodyStart();//lance le module
-	melody_player_start();
+	//melody_player_start_thd();
 	setSoundFileVolume(10);
-	playMelodyStart();//lance le module
 	//melody_player_start();
-
-	//walk_start();
-
-
+	avoid_obstacles_start_thd();
+	walk_start_thd();
 
 
     /* Infinite loop. */
     while (1) {
-    	//waits 1 second
-    	if(get_barcode() == 3){
-    		chprintf((BaseSequentialStream *)&SD3,'il y a 3 lignes \r\n');
+    	//if(get_selector()==0){
+    	    				//break;
+    		//walk_stop_thd();
+    	static bool lock = 0;
+
+    	if(get_selector() == 0 && !lock){
+    		lock = 1;
+    		avoid_obstacles_resume_thd();
     	}
-    	chThdSleepMilliseconds(100);
+    	else if((get_selector() != 0 && lock)){
+    		lock = 0;
+    		avoid_obstacles_pause_thd();
+    	}
+    	chThdSleepMilliseconds(1000);
 
     }
+    		//		else{walk_resume_thd();}
+
+    	//waits 1 second
 }
 
 #define STACK_CHK_GUARD 0xe2dee396

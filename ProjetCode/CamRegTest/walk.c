@@ -9,48 +9,79 @@
 #include <walk.h>
 #include <selector.h>
 
+//The main goal of this module is to achieve "random-like" shapes that take the form of a butterfly (or "criss-cross" shape)
+#define SPEED_BUTTERFLY		1000//[step*s^-1]
+#define TIME_TURN_BUTTERFLY	1000*(PERIMETER_EPUCK/6)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_BUTTERFLY) //[ms]
+#define TIME_SEGMENT_BUTTERFLY	1000*(PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_BUTTERFLY) //[ms]
+#define BUTTERFLY_WAIT_TIME	1000 //[s]
 
-#define SPEED_TRIANGLE		1000//step*s^-1
-#define TIME_TURN_TRIANGLE	1000*(PERIMETER_EPUCK/6)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
-#define TIME_SEGMENT_TRIANGLE	1000*(PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_TRIANGLE) //ms
+static thread_t* ptr_walk;
+
+static bool is_walking = false;
+static bool is_paused = false;
 
 
-static THD_WORKING_AREA(waWalk, 1024);
-static THD_FUNCTION(Walk, arg) {
+static THD_WORKING_AREA(waWalk, 2048);
+static THD_FUNCTION(thd_walk, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
     systime_t time;
-	while(1){
-    for(unsigned int i=0; i<3; i++){
-    	if(get_selector()==0){
-    				//chThdTerminate(Walk);
-    				break;
-    			}
-    	left_motor_set_speed(SPEED_TRIANGLE);
-		right_motor_set_speed(-SPEED_TRIANGLE);
-		chThdSleepMilliseconds(TIME_TURN_TRIANGLE);
-		left_motor_set_speed(SPEED_TRIANGLE);
-		right_motor_set_speed(SPEED_TRIANGLE);
-		chThdSleepMilliseconds(TIME_SEGMENT_TRIANGLE);
-		left_motor_set_speed(0);
-		right_motor_set_speed(0);
-    }
-	chThdSleepMilliseconds(5000);//pause entre les triangles, à enlever plus tard
-	if(get_selector()==0){
-				//chThdTerminate(Walk);
-				break;
+    while(!chThdShouldTerminateX()){
+		time = chVTGetSystemTime();
+
+
+		for(unsigned int i=0; i<3; i++){
+			chSysLock();
+			if (is_paused){
+				chSchGoSleepS(CH_STATE_SUSPENDED);
 			}
-
-
-
-
-
+			chSysUnlock();
+			left_motor_set_speed(SPEED_BUTTERFLY);
+			right_motor_set_speed(-SPEED_BUTTERFLY);
+			chThdSleepMilliseconds(TIME_TURN_BUTTERFLY);
+			left_motor_set_speed(SPEED_BUTTERFLY);
+			right_motor_set_speed(SPEED_BUTTERFLY);
+			chThdSleepMilliseconds(TIME_SEGMENT_BUTTERFLY);
+			left_motor_set_speed(SPEED_STOP);
+			right_motor_set_speed(SPEED_STOP);
+		}
+		chThdSleepMilliseconds(BUTTERFLY_WAIT_TIME);//pause entre les triangles, à enlever plus tard
 
     chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
-}
+    }
+	is_walking = false;
+	chThdExit(0);
 }
 
-void walk_start(void){
-	chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, Walk, NULL);
+void walk_start_thd(void){
+	ptr_walk = chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, thd_walk, NULL);
+	is_paused = false;
+	is_walking = true;
 }
+
+void walk_stop_thd(void){
+	chThdTerminate(ptr_walk);
+	//chThdWait(ptr_walk);
+	is_walking = false;
+	is_paused = false;
+}
+
+void walk_pause_thd(void){
+	if (is_walking)
+		is_paused = true;
+}
+
+void walk_resume_thd(void){
+	chSysLock();
+	if (is_walking && is_paused){
+	  chSchWakeupS(ptr_walk, CH_STATE_READY);
+	  is_paused = false;
+	}
+	chSysUnlock();
+}
+
+bool walk_get_state(void){
+	return is_walking;
+}
+

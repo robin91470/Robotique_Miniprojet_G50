@@ -31,6 +31,8 @@ static THD_FUNCTION(CaptureImage, arg) {
 	dcmi_prepare();
 
     while(1){
+		//time = chVTGetSystemTime();
+
 //    	unsigned int timetime = chVTGetSystemTime();
         //starts a capture
 		dcmi_capture_start();

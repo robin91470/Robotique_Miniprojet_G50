@@ -42,10 +42,6 @@
 
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 
-messagebus_t bus;
-MUTEX_DECL(bus_lock);
-CONDVAR_DECL(bus_condvar);
-
 parameter_namespace_t parameter_root, aseba_ns;
 
 static THD_WORKING_AREA(selector_thd_wa, 2048);
