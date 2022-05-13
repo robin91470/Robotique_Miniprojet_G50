@@ -13,7 +13,6 @@ CSRC += ./main.c \
 		./pid_distance.c \
 		./process_image.c \
 		./walk.c \
-		./approach_tag.c \
 		./melody_player.c \
 		./scan.c \
 		
