@@ -20,7 +20,7 @@
 
 
 // set the color to track.
-static couleur color_mode = COULEUR_ROUGE;
+static couleur color_mode = COULEUR_AUTRE;
 
 // let know if we have found the objective
 static bool good_color = 0;
@@ -81,8 +81,10 @@ static THD_FUNCTION(Scan, arg) {
 		if ((VL53L0X_get_dist_mm() < MAX_SCAN_DIST) && (VL53L0X_get_dist_mm() > MIN_SCAN_DIST)){
 			dist_approach = VL53L0X_get_dist_mm() - SCAN_DIST;
 			scan_approach(dist_approach);
+			ProcessImage_resume_thd();
 			chThdSleepMilliseconds(TIME_TO_SCAN);
 			color_scanned = color_scan();
+			ProcessImage_pause_thd();
 			if((color_mode == COULEUR_ROUGE && color_scanned == COULEUR_ROUGE) ||
 					(color_mode == COULEUR_BLEU && color_scanned == COULEUR_BLEU)){
 				good_color = 1;

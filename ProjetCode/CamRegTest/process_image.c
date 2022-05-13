@@ -15,6 +15,15 @@ static bool line_detection_red = 0;
 static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
 static void line_detection_avg(void);
+
+//Pointeurs des threads
+static thread_t* ptr_CaptureImage;
+static thread_t* ptr_ProcessImage;
+
+// Booléen permettant de mettre en pause les threads
+static bool is_paused = false;
+
+
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
@@ -33,13 +42,15 @@ static THD_FUNCTION(CaptureImage, arg) {
 	dcmi_prepare();
 
     while(1){
-//    	unsigned int timetime = chVTGetSystemTime();
+    	chSysLock();
+    	if (is_paused){
+    		chSchGoSleepS(CH_STATE_SUSPENDED);
+    	}
+    	chSysUnlock();
         //starts a capture
 		dcmi_capture_start();
 		//waits for the capture to be done
 		wait_image_ready();
-//		unsigned int Timing = chVTGetSystemTime()-timetime;
-//		chprintf((BaseSequentialStream *)&SDU1, "%Timing=%d \r \n", Timing);
 		//signals an image has been captured
 		chBSemSignal(&image_ready_sem);
 
@@ -60,7 +71,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 
     while(1){
-
+    	chSysLock();
+    	    	if (is_paused){
+    	    		chSchGoSleepS(CH_STATE_SUSPENDED);
+    	    	}
+    	chSysUnlock();
     	//waits until an image has been captured
         chBSemWait(&image_ready_sem);
 		//gets the pointer to the array filled with the last image in RGB565    
@@ -68,17 +83,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 		for(unsigned int i=0;i<IMAGE_BUFFER_SIZE*2;i+=2){
 			image_rouge[i/2] = img_buff_ptr[i] >> 3;
 			image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
-			//prends les trois premiers bits du msb vert et adapte leurs valeur par rapport à la datasheet
-			//image_vert[i/2] = img_buff_ptr[i] &0x07 *2 * 2 * 2;
-			//rajoute les 3 bits du msb situé sur l'indice suivant sur img_buff_ptr
-			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
+
 		}
-//		SendUint8ToComputer(image_bleu, IMAGE_BUFFER_SIZE);
+
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
 		line_detection_avg();
-//		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
-//				line_detection_red, line_detection_blue);
 		chThdSleepMilliseconds(100);
 
 
@@ -87,8 +97,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 
 void process_image_start(void){
-	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
-	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
+	ptr_CaptureImage = chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
+	ptr_ProcessImage = chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
 
 //cette fonction renvoie la detection d'une ligne de couleur
@@ -199,3 +209,21 @@ bool get_line_detection_red(void){
 bool get_line_detection_blue(void){
 	return line_detection_blue;
 }
+
+
+void ProcessImage_pause_thd(void){
+	is_paused = true;
+}
+
+
+void ProcessImage_resume_thd(void){
+	chSysLock();
+	if(is_paused){
+		chSchWakeupS(ptr_CaptureImage, CH_STATE_READY);
+		chSchWakeupS(ptr_ProcessImage, CH_STATE_READY);
+		is_paused = false;
+	}
+	chSysUnlock();
+}
+
+

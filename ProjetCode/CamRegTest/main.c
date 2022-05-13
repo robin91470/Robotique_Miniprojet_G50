@@ -62,21 +62,31 @@ int main(void)
 	po8030_start();
 	VL53L0X_start();
 	process_image_start();
+	ProcessImage_pause_thd();
 	//inits the motors
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
-	setSoundFileVolume(5);
-	playMelodyStart();//lance le module
-	melody_player_start();
-	setSoundFileVolume(10);
 
-	avoid_obstacles_start_thd();
-	walk_start_thd();
+	playMelodyStart();//lance le module
+//	setSoundFileVolume(10);
+//	melody_player_start();
+
+
+//	avoid_obstacles_start_thd();
+//	walk_start_thd();
 
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-    	    	chThdSleepMilliseconds(100);
+    	static bool lock = 0;
+    	if(!lock && get_selector() == 8){
+    		set_color_mode(COULEUR_ROUGE);
+    		scan_start();
+    		lock = 1;
+    	}else if(lock && get_selector() != 8){
+    		lock = 0;
+    	}
+    	chThdSleepMilliseconds(100);
 
     }
 }
