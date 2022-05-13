@@ -4,6 +4,7 @@
 #include <audio/play_melody.h>
 #include <selector.h>
 
+static uint8_t melody_to_play = 0;
 
 static THD_WORKING_AREA(waMelodyPlayer, 1024);
 static THD_FUNCTION(Melody_player, arg) {
