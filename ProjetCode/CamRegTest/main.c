@@ -24,6 +24,8 @@
 #include <walk.h>
 #include <scan.h>
 #include <pid_distance.h>
+#include <avoid_obstacles.h>
+
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -68,11 +70,8 @@ int main(void)
 	melody_player_start();
 	setSoundFileVolume(10);
 
-
-	//walk_start();
-
-
-
+	avoid_obstacles_start_thd();
+	walk_start_thd();
 
     /* Infinite loop. */
     while (1) {
