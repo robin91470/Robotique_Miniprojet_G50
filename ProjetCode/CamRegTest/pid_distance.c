@@ -19,11 +19,8 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <process_image.h>
 
-//Pointeurs de la thread
-static thread_t* ptr_pid_distance;
-
-// Booléen permettant de mettre en pause la thread
-static bool is_paused = false;
+// Booléen de completition de la tache
+static bool is_done = false;
 
 static uint16_t get_mean_distance_mm(void){
 	uint16_t mean_distance = 0;
@@ -75,17 +72,13 @@ static THD_FUNCTION(PidRegulator, arg) {
     (void)arg;
 
     systime_t time;
-
+    static systime_t stable_time;
     int16_t speed = 0;
-
     while(1){
     	time = chVTGetSystemTime();
-    	chSysLock();
-		if (is_paused){
-			chSchGoSleepS(CH_STATE_SUSPENDED);
-		}
-    	chSysUnlock();
-
+    	if(!stable_time){
+    	    stable_time = chVTGetSystemTime();
+    	}
         //computes the speed to give to the motors
         speed = pid_regulator(get_mean_distance_mm(), GOAL_DIST);
 
@@ -94,25 +87,25 @@ static THD_FUNCTION(PidRegulator, arg) {
 		right_motor_set_speed(speed) ;
 		left_motor_set_speed(speed);
 
+		if(!speed){
+			if((chVTGetSystemTime() - stable_time) > S2ST(STABLE_DURATION)){
+				is_done = true;
+				chThdExit(0);
+			}
+		}else{
+			stable_time = chVTGetSystemTime();
+		}
+
         //100Hz
         chThdSleepUntilWindowed(time, time + MS2ST(10));
     }
 }
 
 void pid_distance_start(void){
-	ptr_pid_distance = chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	is_done = false;
+    chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
 }
 
-void pid_distance_pause_thd(void){
-	is_paused = true;
-}
-
-
-void pid_distance_resume_thd(void){
-	chSysLock();
-	if(is_paused){
-		chSchWakeupS(ptr_pid_distance, CH_STATE_READY);
-		is_paused = false;
-	}
-	chSysUnlock();
+bool get_job_is_done(void){
+	return is_done;
 }

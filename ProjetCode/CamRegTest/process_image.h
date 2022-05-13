@@ -7,7 +7,7 @@
 #define LINE_WIDTH_MIN			30
 
 
-void process_image_start(void);
+void ProcessImage_start_thd(void);
 uint16_t get_line_position(void);
 bool get_line_detection_red(void);
 bool get_line_detection_blue(void);

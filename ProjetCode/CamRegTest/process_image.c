@@ -96,7 +96,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 }
 
 
-void process_image_start(void){
+void ProcessImage_start_thd(void){
 	ptr_CaptureImage = chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	ptr_ProcessImage = chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }

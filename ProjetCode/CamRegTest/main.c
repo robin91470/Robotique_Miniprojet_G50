@@ -61,15 +61,15 @@ int main(void)
     dcmi_start();
 	po8030_start();
 	VL53L0X_start();
-	process_image_start();
+	ProcessImage_start_thd();
 	ProcessImage_pause_thd();
 	//inits the motors
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
 
 	playMelodyStart();//lance le module
-//	setSoundFileVolume(10);
-//	melody_player_start();
+	setSoundFileVolume(10);
+	melody_player_start();
 
 
 //	avoid_obstacles_start_thd();
@@ -80,11 +80,14 @@ int main(void)
     	//waits 1 second
     	static bool lock = 0;
     	if(!lock && get_selector() == 8){
-    		set_color_mode(COULEUR_ROUGE);
-    		scan_start();
+//    		playMelody(WALKING, ML_SIMPLE_PLAY, NULL);
+//    		set_color_mode(COULEUR_ROUGE);
+//    		scan_start();
+    		pid_distance_start();
     		lock = 1;
     	}else if(lock && get_selector() != 8){
     		lock = 0;
+//    		stopCurrentMelody();
     	}
     	chThdSleepMilliseconds(100);
 

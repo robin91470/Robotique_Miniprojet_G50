@@ -8,7 +8,7 @@ typedef enum {
 	NO_SONG = 0x00,
 	TAVERN_SONG = 0x01,
     PURSUIT_SONG = 0x02,
-    ENEMI_DETECTION_SONG = 0x03,
+    ENEMY_DETECTION_SONG = 0x03,
 	VICTORY_SONG = 0x04
 } music;
 

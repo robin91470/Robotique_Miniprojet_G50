@@ -36,10 +36,10 @@ static THD_FUNCTION(Melody_player, arg) {
     			temp = PURSUIT_SONG;
     			}
     			break;
-    		case ENEMI_DETECTION_SONG:
-    			if(temp!=ENEMI_DETECTION_SONG || !getPlay()){
+    		case ENEMY_DETECTION_SONG:
+    			if(temp!=ENEMY_DETECTION_SONG || !getPlay()){
     			playMelody(POKEMON_TRAINER_BATTLE, ML_FORCE_CHANGE, NULL);
-    			temp = ENEMI_DETECTION_SONG;
+    			temp = ENEMY_DETECTION_SONG;
     			}
     			break;
     		case VICTORY_SONG:
