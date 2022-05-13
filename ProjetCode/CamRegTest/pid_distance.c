@@ -43,7 +43,7 @@ int16_t pid_regulator(uint16_t distance, float goal){
 
 	error = distance - goal;
 
-	//disables the PI regulator if the error is to small
+	//disables the PID regulator if the error is to small
 	if(fabs(error) < ERROR_THRESHOLD){
 		return 0;
 	}

@@ -63,10 +63,9 @@ int main(void)
 	//inits the motors
 	motors_init();
 	dac_start();//pas sur qu'il faille le mettre
-	setSoundFileVolume(5);
 	playMelodyStart();//lance le module
-	melody_player_start();
-	setSoundFileVolume(10);
+//	melody_player_start();
+//	setSoundFileVolume(10);
 
 
 	//walk_start();
@@ -76,8 +75,16 @@ int main(void)
 
     /* Infinite loop. */
     while (1) {
+    	static bool lock=0;
+    	if(!lock && getselector() == 9){
+    		set_color_mode(COULEUR_ROUGE);
+    		scan_start();
+    		lock = 1;
+    	}else if(lock && getselector() != 9){
+    		lock = 0;
+    	}
     	//waits 1 second
-    	    	chThdSleepMilliseconds(100);
+    	chThdSleepMilliseconds(100);
 
     }
 }

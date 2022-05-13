@@ -33,13 +33,10 @@ static THD_FUNCTION(CaptureImage, arg) {
 	dcmi_prepare();
 
     while(1){
-//    	unsigned int timetime = chVTGetSystemTime();
         //starts a capture
 		dcmi_capture_start();
 		//waits for the capture to be done
 		wait_image_ready();
-//		unsigned int Timing = chVTGetSystemTime()-timetime;
-//		chprintf((BaseSequentialStream *)&SDU1, "%Timing=%d \r \n", Timing);
 		//signals an image has been captured
 		chBSemSignal(&image_ready_sem);
 
@@ -56,8 +53,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t *img_buff_ptr;
 	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_rouge[IMAGE_BUFFER_SIZE] = {0};
-//	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
-
 
     while(1){
 
@@ -68,17 +63,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 		for(unsigned int i=0;i<IMAGE_BUFFER_SIZE*2;i+=2){
 			image_rouge[i/2] = img_buff_ptr[i] >> 3;
 			image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
-			//prends les trois premiers bits du msb vert et adapte leurs valeur par rapport à la datasheet
-			//image_vert[i/2] = img_buff_ptr[i] &0x07 *2 * 2 * 2;
-			//rajoute les 3 bits du msb situé sur l'indice suivant sur img_buff_ptr
-			//image_vert[i/2] += img_buff_ptr[i+1] >> 5;
 		}
-//		SendUint8ToComputer(image_bleu, IMAGE_BUFFER_SIZE);
 		line_detection_red = detection_line(image_rouge);
 		line_detection_blue = detection_line(image_bleu);
 		line_detection_avg();
-//		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d et detec ligne bleu = %d \r \n",
-//				line_detection_red, line_detection_blue);
 		chThdSleepMilliseconds(100);
 
 

@@ -20,7 +20,7 @@
 
 
 // set the color to track.
-static couleur color_mode = COULEUR_ROUGE;
+static couleur color_mode = COULEUR_AUTRE;
 
 // let know if we have found the objective
 static bool good_color = 0;
