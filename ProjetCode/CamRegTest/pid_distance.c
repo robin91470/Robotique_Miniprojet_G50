@@ -19,6 +19,12 @@
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <process_image.h>
 
+//Pointeurs de la thread
+static thread_t* ptr_pid_distance;
+
+// Booléen permettant de mettre en pause la thread
+static bool is_paused = false;
+
 static uint16_t get_mean_distance_mm(void){
 	uint16_t mean_distance = 0;
 	static uint16_t previous_distance[NB_SAMPLES] = {0};
@@ -73,7 +79,12 @@ static THD_FUNCTION(PidRegulator, arg) {
     int16_t speed = 0;
 
     while(1){
-        time = chVTGetSystemTime();
+    	time = chVTGetSystemTime();
+    	chSysLock();
+		if (is_paused){
+			chSchGoSleepS(CH_STATE_SUSPENDED);
+		}
+    	chSysUnlock();
 
         //computes the speed to give to the motors
         speed = pid_regulator(get_mean_distance_mm(), GOAL_DIST);
@@ -89,5 +100,19 @@ static THD_FUNCTION(PidRegulator, arg) {
 }
 
 void pid_distance_start(void){
-	chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	ptr_pid_distance = chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+}
+
+void pid_distance_pause_thd(void){
+	is_paused = true;
+}
+
+
+void pid_distance_resume_thd(void){
+	chSysLock();
+	if(is_paused){
+		chSchWakeupS(ptr_pid_distance, CH_STATE_READY);
+		is_paused = false;
+	}
+	chSysUnlock();
 }

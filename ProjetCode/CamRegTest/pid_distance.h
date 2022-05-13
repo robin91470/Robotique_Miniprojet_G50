@@ -2,7 +2,7 @@
  * pid_distance.h
  *
  *  Created on: 29 avr. 2022
- *      Author: alexi
+ *      Author: alexis
  */
 
 #ifndef PID_DISTANCE_H_
@@ -19,6 +19,7 @@
 #define NB_SAMPLES				10
 
 void pid_distance_start(void);
-
+void pid_distance_pause_thd(void);
+void pid_distance_resume_thd(void);
 
 #endif /* PID_DISTANCE_H_ */
