@@ -70,7 +70,6 @@ static THD_FUNCTION(Scan, arg) {
 		time = chVTGetSystemTime();
 		int16_t dist_approach = 0;
 		couleur color_scanned = 0;
-		chprintf((BaseSequentialStream *)&SD3, " detec ligne rouge = %d \r \n", VL53L0X_get_dist_mm() );
 		if ((VL53L0X_get_dist_mm() < MAX_SCAN_DIST) && (VL53L0X_get_dist_mm() > MIN_SCAN_DIST)){
 			dist_approach = VL53L0X_get_dist_mm() - SCAN_DIST;
 			scan_approach(dist_approach);
