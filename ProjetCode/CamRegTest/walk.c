@@ -17,7 +17,6 @@
 
 static thread_t* ptr_walk;
 
-static bool is_walking = false;
 static bool is_paused = false;
 
 
@@ -27,15 +26,15 @@ static THD_FUNCTION(thd_walk, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
     systime_t time;
-    while(!chThdShouldTerminateX()){
+    while(1){
 		time = chVTGetSystemTime();
-
-
+		chSysLock();
+		if (is_paused){
+			chSchGoSleepS(CH_STATE_SUSPENDED);
+		}
+		chSysUnlock();
 		for(unsigned int i=0; i<3; i++){
-			chSysLock();
-			if (is_paused){
-				chSchGoSleepS(CH_STATE_SUSPENDED);
-			}
+
 			chSysUnlock();
 			left_motor_set_speed(SPEED_BUTTERFLY);
 			right_motor_set_speed(-SPEED_BUTTERFLY);
@@ -50,37 +49,25 @@ static THD_FUNCTION(thd_walk, arg) {
 
     chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
-	is_walking = false;
 	chThdExit(0);
 }
 
 void walk_start_thd(void){
 	ptr_walk = chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, thd_walk, NULL);
 	is_paused = false;
-	is_walking = true;
 }
 
-void walk_stop_thd(void){
-	chThdTerminate(ptr_walk);
-	//chThdWait(ptr_walk);
-	is_walking = false;
-	is_paused = true;
-}
 
 void walk_pause_thd(void){
-	if (is_walking)
-		is_paused = true;
+	is_paused = true;
 }
 
 void walk_resume_thd(void){
 	chSysLock();
-	if (is_walking && is_paused){
+	if (is_paused){
 	  chSchWakeupS(ptr_walk, CH_STATE_READY);
 	  is_paused = false;
 	}
 	chSysUnlock();
 }
 
-bool walk_get_state(void){
-	return is_walking;
-}
