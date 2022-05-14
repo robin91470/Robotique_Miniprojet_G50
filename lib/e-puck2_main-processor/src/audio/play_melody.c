@@ -822,6 +822,4 @@ void waitMelodyHasFinished(void) {
     chMtxUnlock(&play_melody_lock);
   }
 }
-bool getPlay(void){
-	return play;
-}
+

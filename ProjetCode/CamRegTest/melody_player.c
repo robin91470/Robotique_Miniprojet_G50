@@ -254,37 +254,45 @@ static THD_FUNCTION(Melody_player, arg) {
     while (1) {
     	//Permet de detecter un changement de musique
     	static music temp = NO_SONG;
+    	//La fonction get_play implémenté dans la libraire e-puck2_main_processor est
+    	//nécessaire afin de savoir quand on doit rejouer la musique
 
     	switch (music_to_play){
     		default:
-    			if(getPlay()){
-    				stopCurrentMelody();
-    			}
+    			stopCurrentMelody();
     			temp = NO_SONG;
     			break;
     		case TAVERN_SONG:
-    			if(temp!=TAVERN_SONG || !getPlay()){
-    			playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[THE_TAVERN_SONG]);
-    			temp = TAVERN_SONG;
+    			if(temp!=TAVERN_SONG){
+    				playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[THE_TAVERN_SONG]);
+    			}else{
+    				playMelody(EXTERNAL_SONG, ML_SIMPLE_PLAY, &melody[THE_TAVERN_SONG]);
     			}
+    			temp = TAVERN_SONG;
     			break;
     		case PURSUIT_SONG:
-    			if(temp!=PURSUIT_SONG || !getPlay()){
-    			playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[MEGALOVANIA]);
-    			temp = PURSUIT_SONG;
+    			if(temp!=PURSUIT_SONG){
+    				playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[MEGALOVANIA]);
+    			}else{
+    				playMelody(EXTERNAL_SONG, ML_SIMPLE_PLAY, &melody[MEGALOVANIA]);
     			}
+    			temp = PURSUIT_SONG;
     			break;
     		case ENEMY_DETECTION_SONG:
-    			if(temp!=ENEMY_DETECTION_SONG || !getPlay()){
-    			playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[POKEMON_TRAINER_BATTLE]);
-    			temp = ENEMY_DETECTION_SONG;
+    			if(temp!=ENEMY_DETECTION_SONG){
+    				playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[POKEMON_TRAINER_BATTLE]);
+    			}else{
+    				playMelody(EXTERNAL_SONG, ML_SIMPLE_PLAY, &melody[POKEMON_TRAINER_BATTLE]);
     			}
+    			temp = ENEMY_DETECTION_SONG;
     			break;
     		case VICTORY_SONG:
-    			if(temp!=VICTORY_SONG || !getPlay()){
-    			playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[VICTORY_FANFARE]);
-    			temp = VICTORY_SONG;
+    			if(temp!=VICTORY_SONG){
+    				playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[VICTORY_FANFARE]);
+    			}else{
+    				playMelody(EXTERNAL_SONG, ML_SIMPLE_PLAY, &melody[VICTORY_FANFARE]);
     			}
+    			temp = VICTORY_SONG;
     			break;
     		}
 

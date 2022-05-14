@@ -89,7 +89,6 @@ int main(void)
     while (1) {
 
     	if(get_selector() == TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
-    		stop_pid();
     		if(!tavern_threads_resumed){
 				set_music_to_play(TAVERN_SONG);
 				walk_resume_thd();
