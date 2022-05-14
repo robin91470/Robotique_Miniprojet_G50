@@ -21,5 +21,6 @@
 
 void pid_distance_start(void);
 bool get_job_is_done(void);
+void stop_pid(void);
 
 #endif /* PID_DISTANCE_H_ */

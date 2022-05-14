@@ -4,6 +4,16 @@
 #include <ch.h>
 #include <hal.h>
 
+typedef enum{
+	//internal songs available
+	MEGALOVANIA = 0,
+	POKEMON_TRAINER_BATTLE,
+	VICTORY_FANFARE,
+	THE_TAVERN_SONG,
+
+	NB_EXTERNAL_SONGS	//tell the number of internal songs
+}song_selection_ext;
+
 typedef enum {
 	NO_SONG = 0x00,
 	TAVERN_SONG = 0x01,

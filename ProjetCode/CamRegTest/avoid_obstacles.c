@@ -19,7 +19,6 @@
 messagebus_t bus;//declares the messagebus (to proper sensor communication)
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-static thread_t* ptr_avoid_obstacles;//Creates thread pointer
 
 static bool thd_is_created = false;
 static bool is_paused = false;//checkable boolean to pause/unpause the thread as necessary
@@ -41,40 +40,37 @@ static THD_FUNCTION(avoid_obstacles, arg) {
     proximity_msg_t prox_values;
 	while(1){
 		time = chVTGetSystemTime();
-		chSysLock();
-		if (is_paused){
-			chSchGoSleepS(CH_STATE_SUSPENDED);
-		}
-		chSysUnlock();
-		messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));//proximity sensor readings
-    	for(unsigned int i = 0; i<PROXIMITY_NB_CHANNELS - 1; i++){
-			if (abs(prox_values.delta[i]) > PROXIMITY_THRESHOLD){//obstacle is detected
-				left_motor_set_speed(SPEED_STOP);
-				right_motor_set_speed(SPEED_STOP);
-				if(i<PROXIMITY_NB_HALF){//obstacle detection on the right
-					left_motor_set_speed(-SPEED_ROTATION);
-					right_motor_set_speed(SPEED_ROTATION);
-				}
-				else{//obstacle detection on the left
-					left_motor_set_speed(SPEED_ROTATION);
-					right_motor_set_speed(-SPEED_ROTATION);
-				}
-				systime_t time_avoid = chVTGetSystemTime();
-				while((abs(prox_values.delta[PROXIMITY_SENSOR_3_ID]) <= PROXIMITY_THRESHOLD)&&((abs(prox_values.delta[PROXIMITY_SENSOR_4_ID]) <= PROXIMITY_THRESHOLD))){//
-					if(((chVTGetSystemTime() - time_avoid) > S2ST(AVOIDANCE_DURATION))
-							&&(abs(prox_values.delta[PROXIMITY_SENSOR_0_ID]) <= PROXIMITY_THRESHOLD)
-							&&(abs(prox_values.delta[PROXIMITY_SENSOR_1_ID]) <= PROXIMITY_THRESHOLD)
-							&&(abs(prox_values.delta[PROXIMITY_SENSOR_6_ID]) <= PROXIMITY_THRESHOLD)
-							&&(abs(prox_values.delta[PROXIMITY_SENSOR_7_ID]) <= PROXIMITY_THRESHOLD)){
-						break;
+		if (!is_paused){
+			messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));//proximity sensor readings
+			for(unsigned int i = 0; i<PROXIMITY_NB_CHANNELS - 1; i++){
+				if (abs(prox_values.delta[i]) > PROXIMITY_THRESHOLD){//obstacle is detected
+					left_motor_set_speed(SPEED_STOP);
+					right_motor_set_speed(SPEED_STOP);
+					if(i<PROXIMITY_NB_HALF){//obstacle detection on the right
+						left_motor_set_speed(-SPEED_ROTATION);
+						right_motor_set_speed(SPEED_ROTATION);
 					}
-					messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
+					else{//obstacle detection on the left
+						left_motor_set_speed(SPEED_ROTATION);
+						right_motor_set_speed(-SPEED_ROTATION);
+					}
+					systime_t time_avoid = chVTGetSystemTime();
+					while((abs(prox_values.delta[PROXIMITY_SENSOR_3_ID]) <= PROXIMITY_THRESHOLD)&&((abs(prox_values.delta[PROXIMITY_SENSOR_4_ID]) <= PROXIMITY_THRESHOLD))){//
+						if(((chVTGetSystemTime() - time_avoid) > S2ST(AVOIDANCE_DURATION))
+								&&(abs(prox_values.delta[PROXIMITY_SENSOR_0_ID]) <= PROXIMITY_THRESHOLD)
+								&&(abs(prox_values.delta[PROXIMITY_SENSOR_1_ID]) <= PROXIMITY_THRESHOLD)
+								&&(abs(prox_values.delta[PROXIMITY_SENSOR_6_ID]) <= PROXIMITY_THRESHOLD)
+								&&(abs(prox_values.delta[PROXIMITY_SENSOR_7_ID]) <= PROXIMITY_THRESHOLD)){
+							break;
+						}
+						messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
+					}
+					left_motor_set_speed(AVOIDANCE_SPEED);
+					right_motor_set_speed(AVOIDANCE_SPEED);
+					chThdSleepMilliseconds(AVOIDANCE_TIME);
+					left_motor_set_speed(SPEED_STOP);
+					right_motor_set_speed(SPEED_STOP);
 				}
-				left_motor_set_speed(AVOIDANCE_SPEED);
-				right_motor_set_speed(AVOIDANCE_SPEED);
-				chThdSleepMilliseconds(AVOIDANCE_TIME);
-				left_motor_set_speed(SPEED_STOP);
-				right_motor_set_speed(SPEED_STOP);
 			}
 		}
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
@@ -83,7 +79,7 @@ static THD_FUNCTION(avoid_obstacles, arg) {
 
 void avoid_obstacles_start_thd(void){
 	if(!thd_is_created){
-		ptr_avoid_obstacles = chThdCreateStatic(waAvoidObstacles, sizeof(waAvoidObstacles), NORMALPRIO+8, avoid_obstacles, NULL);
+		chThdCreateStatic(waAvoidObstacles, sizeof(waAvoidObstacles), NORMALPRIO+8, avoid_obstacles, NULL);
 		is_paused = false;
 		thd_is_created = true;
 	}
@@ -92,15 +88,14 @@ void avoid_obstacles_start_thd(void){
 
 
 void avoid_obstacles_pause_thd(void){
-	is_paused = true;
+	if(!is_paused && thd_is_created){
+		is_paused = true;
+	}
 }
 
 void avoid_obstacles_resume_thd(void){
-	chSysLock();
 	if (is_paused && thd_is_created){
-	  chSchWakeupS(ptr_avoid_obstacles, MSG_OK);
 	  is_paused = false;
 	}
-	chSysUnlock();
 }
 

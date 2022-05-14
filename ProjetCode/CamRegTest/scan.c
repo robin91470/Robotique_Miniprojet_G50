@@ -25,6 +25,12 @@ static couleur color_mode = COULEUR_AUTRE;
 // let know if we have found the objective
 static bool good_color = 0;
 
+// Booléen d'arret d'urgence de la fonction
+static bool must_stop = false;
+
+//Booléen indiquant si la fonction est crée ou non
+static bool thd_exist = false;
+
 void distance_approach(int16_t dist_approach){
 
 	int16_t step_approach = 0;
@@ -87,6 +93,7 @@ static THD_FUNCTION(Scan, arg) {
 			if((color_mode == COULEUR_ROUGE && color_scanned == COULEUR_ROUGE) ||
 					(color_mode == COULEUR_BLEU && color_scanned == COULEUR_BLEU)){
 				good_color = 1;
+				thd_exist = 0;
 				chThdExit(0);
 			}else{
 				good_color = 0;
@@ -101,7 +108,13 @@ static THD_FUNCTION(Scan, arg) {
 			right_motor_set_speed(-ROTATION_SPEED);
 
 		}
-
+		if(must_stop){
+			left_motor_set_speed(SPEED_STOP);
+			right_motor_set_speed(SPEED_STOP);
+			must_stop = 0;
+			thd_exist = 0;
+			chThdExit(0);
+		}
 
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
@@ -121,6 +134,14 @@ bool get_good_color(void){
 
 
 void scan_start(void){
-	good_color = 0;
-	chThdCreateStatic(waScan, sizeof(waScan), NORMALPRIO, Scan, NULL);
+	if(!thd_exist){
+		thd_exist  = true;
+		good_color = false;
+		must_stop = false;
+		chThdCreateStatic(waScan, sizeof(waScan), NORMALPRIO, Scan, NULL);
+	}
+}
+
+void stop_scan(void){
+	must_stop = true;
 }

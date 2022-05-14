@@ -31,6 +31,7 @@
 #define TIMEOUR_BEER_STROLL 15//[s] time before the epucks gets thirsty
 #define TAVERN_MODE_SELECTION 0//Nominal position the selector must be in to engage the tavern stroll
 #define HUNT_MODE_SELECTION 1 //Nominal position the selector must be in to engage the enemy hunting
+#define TRANSITION_SONG_DURATION	5//[s]
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -70,6 +71,8 @@ int main(void)
 	motors_init();
 	dac_start();
 	//Creation of diverse threads prior to their use in the scenario. They are immediately paused.
+	ProcessImage_start_thd();
+	ProcessImage_pause_thd();
 	playMelodyStart();
 	setSoundFileVolume(10);
 	melody_player_start();
@@ -82,9 +85,11 @@ int main(void)
 	static bool thirsty = false;
 	static bool tavern_threads_resumed = false;
 
-    /* Infinite loop. */
+
     while (1) {
-    	if(get_selector() ==TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
+
+    	if(get_selector() == TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
+    		stop_pid();
     		if(!tavern_threads_resumed){
 				set_music_to_play(TAVERN_SONG);
 				walk_resume_thd();
@@ -103,6 +108,9 @@ int main(void)
 					tavern_threads_resumed = false;
 					set_color_mode(COULEUR_BLEU);
 					scan_start();
+					while(!get_good_color()){//Waits for the scan to identify the enemy
+									chThdSleepMilliseconds(100);//10Hz Refresh
+					}
 					beer_start();//Gets a beer
 					while(!get_beer_served()){
 						chThdSleepMilliseconds(100);//10Hz Refresh
@@ -125,18 +133,26 @@ int main(void)
 				chThdSleepMilliseconds(100);//10Hz Refresh
 			}//The while loop ends => Enemy is detected
 			set_music_to_play(ENEMY_DETECTION_SONG);
-			waitMelodyHasFinished();
+			chThdSleepSeconds(TRANSITION_SONG_DURATION);
 			set_music_to_play(PURSUIT_SONG);
 			pid_distance_start();//Pursuit initialized
 			while(!get_job_is_done()){//Waits for the pursuit to finish
 				chThdSleepMilliseconds(100);//10Hz Refresh
 			}
 			set_music_to_play(VICTORY_SONG);//Enemy Hit. Victory is ours !
-			chThdSleepSeconds(5);
+			chThdSleepSeconds(TRANSITION_SONG_DURATION);
 		    set_music_to_play(NO_SONG);
 			while(((get_selector() == HUNT_MODE_SELECTION) || (get_selector() != TAVERN_MODE_SELECTION)) && get_job_is_done() ){
 				chThdSleepMilliseconds(100);//10Hz Refresh; Stays locked in if HUNT_MODE isn't manually disabled (through selector)
 			}
+    	}
+    	else{
+		    set_music_to_play(NO_SONG);
+			walk_pause_thd();
+			avoid_obstacles_pause_thd();
+			stop_beer();
+			stop_scan();
+			stop_pid();
     	}
     	chThdSleepMilliseconds(100);//10Hz Refresh; After the sleep, the epuck goes back to it tavern stroll initialisation at beginning of principal while.
     }

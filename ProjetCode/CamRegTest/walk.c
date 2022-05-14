@@ -15,8 +15,7 @@
 #define TIME_SEGMENT_BUTTERFLY	1000*(PERIMETER_EPUCK/2)*(NSTEP_ONE_TURN/WHEEL_DISTANCE)/(SPEED_BUTTERFLY) //[ms]
 #define BUTTERFLY_WAIT_TIME	1000 //[s]
 
-static thread_t* ptr_walk;
-
+static bool thd_is_created = false;
 static bool is_paused = false;
 
 
@@ -28,46 +27,43 @@ static THD_FUNCTION(thd_walk, arg) {
     systime_t time;
     while(1){
 		time = chVTGetSystemTime();
-		chSysLock();
-		if (is_paused){
-			chSchGoSleepS(CH_STATE_SUSPENDED);
-		}
-		chSysUnlock();
-		for(unsigned int i=0; i<3; i++){
+		if (!is_paused){
 
-			chSysUnlock();
-			left_motor_set_speed(SPEED_BUTTERFLY);
-			right_motor_set_speed(-SPEED_BUTTERFLY);
-			chThdSleepMilliseconds(TIME_TURN_BUTTERFLY);
-			left_motor_set_speed(SPEED_BUTTERFLY);
-			right_motor_set_speed(SPEED_BUTTERFLY);
-			chThdSleepMilliseconds(TIME_SEGMENT_BUTTERFLY);
-			left_motor_set_speed(SPEED_STOP);
-			right_motor_set_speed(SPEED_STOP);
-		}
-		chThdSleepMilliseconds(BUTTERFLY_WAIT_TIME);//pause entre les triangles, à enlever plus tard
+			for(unsigned int i=0; i<3; i++){
 
+				left_motor_set_speed(SPEED_BUTTERFLY);
+				right_motor_set_speed(-SPEED_BUTTERFLY);
+				chThdSleepMilliseconds(TIME_TURN_BUTTERFLY);
+				left_motor_set_speed(SPEED_BUTTERFLY);
+				right_motor_set_speed(SPEED_BUTTERFLY);
+				chThdSleepMilliseconds(TIME_SEGMENT_BUTTERFLY);
+				left_motor_set_speed(SPEED_STOP);
+				right_motor_set_speed(SPEED_STOP);
+			}
+			chThdSleepMilliseconds(BUTTERFLY_WAIT_TIME);//pause entre les triangles, à enlever plus tard
+		}
     chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
-	chThdExit(0);
 }
 
 void walk_start_thd(void){
-	ptr_walk = chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, thd_walk, NULL);
-	is_paused = false;
+	if(!thd_is_created){
+		chThdCreateStatic(waWalk, sizeof(waWalk), NORMALPRIO, thd_walk, NULL);
+		is_paused = false;
+		thd_is_created = true;
+	}
 }
 
 
 void walk_pause_thd(void){
-	is_paused = true;
+	if(!is_paused && thd_is_created){
+			is_paused = true;
+		}
 }
 
 void walk_resume_thd(void){
-	chSysLock();
-	if (is_paused){
-	  chSchWakeupS(ptr_walk, CH_STATE_READY);
+	if (is_paused && thd_is_created){
 	  is_paused = false;
 	}
-	chSysUnlock();
 }
 

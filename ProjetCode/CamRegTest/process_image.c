@@ -16,12 +16,10 @@ static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
 static void line_detection_avg(void);
 
-//Pointeurs des threads
-static thread_t* ptr_CaptureImage;
-static thread_t* ptr_ProcessImage;
 
 // Booléen permettant de mettre en pause les threads
 static bool is_paused = false;
+static bool thd_is_created = false;
 
 
 //semaphore
@@ -42,17 +40,16 @@ static THD_FUNCTION(CaptureImage, arg) {
 	dcmi_prepare();
 
     while(1){
-    	chSysLock();
-    	if (is_paused){
-    		chSchGoSleepS(CH_STATE_SUSPENDED);
+    	if (!is_paused){
+			//starts a capture
+			dcmi_capture_start();
+			//waits for the capture to be done
+			wait_image_ready();
+			//signals an image has been captured
+			chBSemSignal(&image_ready_sem);
+    	}else{
+    		chThdSleepMilliseconds(100);
     	}
-    	chSysUnlock();
-        //starts a capture
-		dcmi_capture_start();
-		//waits for the capture to be done
-		wait_image_ready();
-		//signals an image has been captured
-		chBSemSignal(&image_ready_sem);
 
     }
 }
@@ -67,28 +64,24 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t *img_buff_ptr;
 	uint8_t image_bleu[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_rouge[IMAGE_BUFFER_SIZE] = {0};
-//	uint8_t image_vert[IMAGE_BUFFER_SIZE] = {0};
 
 
     while(1){
-    	chSysLock();
-    	    	if (is_paused){
-    	    		chSchGoSleepS(CH_STATE_SUSPENDED);
-    	    	}
-    	chSysUnlock();
-    	//waits until an image has been captured
-        chBSemWait(&image_ready_sem);
-		//gets the pointer to the array filled with the last image in RGB565    
-		img_buff_ptr = dcmi_get_last_image_ptr();
-		for(unsigned int i=0;i<IMAGE_BUFFER_SIZE*2;i+=2){
-			image_rouge[i/2] = img_buff_ptr[i] >> 3;
-			image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
+    	if (!is_paused){
+			//waits until an image has been captured
+			chBSemWait(&image_ready_sem);
+			//gets the pointer to the array filled with the last image in RGB565
+			img_buff_ptr = dcmi_get_last_image_ptr();
+			for(unsigned int i=0;i<IMAGE_BUFFER_SIZE*2;i+=2){
+				image_rouge[i/2] = img_buff_ptr[i] >> 3;
+				image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
 
-		}
+			}
 
-		line_detection_red = detection_line(image_rouge);
-		line_detection_blue = detection_line(image_bleu);
-		line_detection_avg();
+			line_detection_red = detection_line(image_rouge);
+			line_detection_blue = detection_line(image_bleu);
+			line_detection_avg();
+    	}
 		chThdSleepMilliseconds(100);
 
 
@@ -97,8 +90,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 
 void ProcessImage_start_thd(void){
-	ptr_CaptureImage = chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
-	ptr_ProcessImage = chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
+	if(!thd_is_created){
+		chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
+		chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
+		is_paused = false;
+		thd_is_created = true;
+	}
 }
 
 //cette fonction renvoie la detection d'une ligne de couleur
@@ -212,18 +209,16 @@ bool get_line_detection_blue(void){
 
 
 void ProcessImage_pause_thd(void){
-	is_paused = true;
+	if(!is_paused && thd_is_created){
+			is_paused = true;
+	}
 }
 
 
 void ProcessImage_resume_thd(void){
-	chSysLock();
-	if(is_paused){
-		chSchWakeupS(ptr_CaptureImage, CH_STATE_READY);
-		chSchWakeupS(ptr_ProcessImage, CH_STATE_READY);
+	if(is_paused && thd_is_created){
 		is_paused = false;
 	}
-	chSysUnlock();
 }
 
 

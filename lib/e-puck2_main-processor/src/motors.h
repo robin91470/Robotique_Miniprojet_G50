@@ -6,13 +6,6 @@
 
 #define MOTOR_SPEED_LIMIT 1100 // [step/s]
 
-#define NSTEP_ONE_TURN      1000
-
-#define PI                  3.1415926536f
-#define WHEEL_DISTANCE      5.35f    //cm
-#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
-#define SPEED_STOP			0//[step/s]
-#define SPEED_ROTATION		700//[step/s]
 
  /**
  * @brief   Sets the speed of the left motor

@@ -13,7 +13,7 @@
 
 void beer_start(void);
 bool get_beer_served(void);
-
+void stop_beer(void);
 
 
 

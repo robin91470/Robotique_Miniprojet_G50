@@ -13,14 +13,19 @@
 #include <chprintf.h>
 
 
-
+#include <main.h>
 #include <motors.h>
 #include <pid_distance.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <process_image.h>
 
-// Booléen de completition de la tache
+// Booléen de complétition de la tache
 static bool is_done = false;
+// Booléen d'arret d'urgence de la fonction
+static bool must_stop = false;
+
+//Booléen indiquant si la fonction est crée ou non
+static bool thd_exist = false;
 
 static uint16_t get_mean_distance_mm(void){
 	uint16_t mean_distance = 0;
@@ -74,6 +79,7 @@ static THD_FUNCTION(PidRegulator, arg) {
     systime_t time;
     static systime_t stable_time;
     int16_t speed = 0;
+
     while(1){
     	time = chVTGetSystemTime();
     	if(!stable_time){
@@ -84,16 +90,24 @@ static THD_FUNCTION(PidRegulator, arg) {
 
 
         //applies the speed from the PID regulator
-		right_motor_set_speed(speed) ;
+		right_motor_set_speed(speed);
 		left_motor_set_speed(speed);
 
 		if(!speed){
 			if((chVTGetSystemTime() - stable_time) > S2ST(STABLE_DURATION)){
 				is_done = true;
+				thd_exist = false;
 				chThdExit(0);
 			}
 		}else{
 			stable_time = chVTGetSystemTime();
+		}
+		if(must_stop){
+			right_motor_set_speed(SPEED_STOP);
+			left_motor_set_speed(SPEED_STOP);
+			must_stop = false;
+			thd_exist = false;
+			chThdExit(0);
 		}
 
         //100Hz
@@ -102,10 +116,18 @@ static THD_FUNCTION(PidRegulator, arg) {
 }
 
 void pid_distance_start(void){
-	is_done = false;
-    chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	if(!thd_exist){
+		must_stop = false;
+		is_done = false;
+		thd_exist = true;
+		chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	}
 }
 
 bool get_job_is_done(void){
 	return is_done;
+}
+
+void stop_pid(void){
+	must_stop = true;
 }

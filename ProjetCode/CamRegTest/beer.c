@@ -13,9 +13,15 @@
 #include <scan.h>
 #include <math.h>
 #include <beer.h>
+#include <main.h>
 
 static bool beer_gotten = 0;
 
+// Booléen d'arret d'urgence de la fonction
+static bool must_stop = false;
+
+//Booléen indiquant si la fonction est crée ou non
+static bool thd_exist = false;
 
 static THD_WORKING_AREA(waBeer, 1024);
 static THD_FUNCTION(Beer, arg) {
@@ -33,18 +39,31 @@ static THD_FUNCTION(Beer, arg) {
 			chThdSleepSeconds(BEER_WAIT);
 			distance_approach(-dist_approach);
 			beer_gotten = true;
+			thd_exist = 0;
 			chThdExit(0);
 		}
-
+		if(must_stop){
+			must_stop = 0;
+			thd_exist = 0;
+			chThdExit(0);
+		}
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
 }
 
 void beer_start(void){
-    beer_gotten = 0;
-	chThdCreateStatic(waBeer, sizeof(waBeer), NORMALPRIO, Beer, NULL);
+	if(!thd_exist){
+		thd_exist  = true;
+		must_stop = false;
+		beer_gotten = 0;
+		chThdCreateStatic(waBeer, sizeof(waBeer), NORMALPRIO, Beer, NULL);
+	}
 }
 
 bool get_beer_served(void){
 	return beer_gotten;
+}
+
+void stop_beer(void){
+	must_stop = true;
 }
