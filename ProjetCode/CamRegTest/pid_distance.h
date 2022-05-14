@@ -17,7 +17,11 @@
 #define KD						1.4f
 #define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 #define NB_SAMPLES				10
-#define STABLE_DURATION			3//[s]
+#define STABLE_DURATION			3 //[s]
+#define SPEED_ANIMATION1		700 //[step/s]
+#define SPEED_ANIMATION2		250 //[step/s]
+#define ANGLE_OF_THE_ROAD_TO_REACH			180//[°]
+#define FRACTION_OF_THE_ROAD	360/ANGLE_OF_THE_ROAD_TO_REACH //[%]
 
 void pid_distance_start(void);
 bool get_job_is_done(void);

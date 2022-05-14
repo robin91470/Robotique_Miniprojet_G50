@@ -210,7 +210,19 @@ static const float the_tavern_song_tempo[] = {
   5/2, 5,
 
 };
+//radar melody
+static const uint16_t radar_song_melody[] = {
 
+  NOTE_GS4, 0,
+
+};
+
+//radar tempo
+static const float radar_song_tempo[] = {
+
+  20, 2,
+
+};
 
 
 
@@ -241,6 +253,13 @@ static const melody_t melody[NB_EXTERNAL_SONGS] = {
 			.notes = the_tavern_song_melody,
 			.tempo = the_tavern_song_tempo,
 			.length = sizeof(the_tavern_song_melody)/sizeof(uint16_t),
+
+		  },
+		  //RADAR_SONG
+		  {
+			.notes = radar_song_melody,
+			.tempo = radar_song_tempo,
+			.length = sizeof(radar_song_melody)/sizeof(uint16_t),
 
 		  },
 };
@@ -294,6 +313,14 @@ static THD_FUNCTION(Melody_player, arg) {
     			}
     			temp = VICTORY_SONG;
     			break;
+    		case RADAR_SONG:
+				if(temp!=RADAR_SONG){
+					playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody[RADAR]);
+				}else{
+					playMelody(EXTERNAL_SONG, ML_SIMPLE_PLAY, &melody[RADAR]);
+				}
+				temp = RADAR_SONG;
+				break;
     		}
 
 

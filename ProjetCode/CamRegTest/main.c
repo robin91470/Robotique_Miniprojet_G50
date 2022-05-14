@@ -52,6 +52,88 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
 
+static bool tavern_phase(bool tavern_threads_resumed){
+	static systime_t beer_time;
+	static bool thirsty = false;
+	if(!tavern_threads_resumed){
+		set_music_to_play(TAVERN_SONG);
+		walk_resume_thd();
+		avoid_obstacles_resume_thd();
+		tavern_threads_resumed = true;
+	}
+	thirsty = true;
+	while(get_selector()==TAVERN_MODE_SELECTION){//While the selector isn't switched manually, the epuck is locked in its tavern stroll
+		if((!beer_time)||!thirsty){//checks if time has been initialized or if a beer has been gotten
+			beer_time = chVTGetSystemTime();
+		}
+		if((chVTGetSystemTime() - beer_time) > S2ST(TIMEOUR_BEER_STROLL)){//The beer timeout delay has been reached, the epuck is thirsty
+			thirsty = true;
+			walk_pause_thd();
+			avoid_obstacles_pause_thd();
+			tavern_threads_resumed = false;
+			set_color_mode(COULEUR_BLEU);
+			scan_start();
+			while(!get_good_color()){//Waits for the scan to identify the enemy
+							chThdSleepMilliseconds(100);//10Hz Refresh
+			}
+			beer_start();//Gets a beer
+			while(!get_beer_served()){
+				chThdSleepMilliseconds(100);//10Hz Refresh
+			}//A beer has been served and the epuck has  gotten away from the bar => can revert to tavern stroll
+			thirsty = false;
+			if(!tavern_threads_resumed){
+				walk_resume_thd();
+				avoid_obstacles_resume_thd();
+				tavern_threads_resumed = true;
+			}
+
+		}
+	}
+	return tavern_threads_resumed;
+}
+
+static bool tracking_phase(bool tavern_threads_resumed){
+	set_music_to_play(NO_SONG);
+	walk_pause_thd();
+	avoid_obstacles_pause_thd();
+	if(tavern_threads_resumed){
+	tavern_threads_resumed = false;
+	}
+	set_color_mode(COULEUR_ROUGE);
+	set_music_to_play(RADAR_SONG);
+	scan_start();//Scan for enemy: the epuck scans nearby objects using its TOF sensor
+	while(!get_good_color()){//Waits for the scan to identify the enemy
+		chThdSleepMilliseconds(100);//10Hz Refresh
+	}//The while loop ends => Enemy is detected
+	set_music_to_play(ENEMY_DETECTION_SONG);
+	chThdSleepSeconds(TRANSITION_SONG_DURATION);
+	set_music_to_play(PURSUIT_SONG);
+	pid_distance_start();//Pursuit initialized
+	while(!get_job_is_done()){//Waits for the pursuit to finish
+		chThdSleepMilliseconds(100);//10Hz Refresh
+	}
+	set_music_to_play(VICTORY_SONG);//Enemy Hit. Victory is ours !
+	chThdSleepSeconds(TRANSITION_SONG_DURATION);
+	set_music_to_play(NO_SONG);
+	while((get_selector() == HUNT_MODE_SELECTION)  && get_job_is_done() ){
+		chThdSleepMilliseconds(100);//10Hz Refresh; Stays locked in if HUNT_MODE isn't manually disabled (through selector)
+	}
+	return tavern_threads_resumed;
+}
+
+static bool reinit(bool tavern_threads_resumed){
+	set_music_to_play(NO_SONG);
+	walk_pause_thd();
+	avoid_obstacles_pause_thd();
+	if(tavern_threads_resumed){
+		tavern_threads_resumed = false;
+	}
+	stop_beer();
+	stop_scan();
+	stop_pid();
+	return tavern_threads_resumed;
+}
+
 int main(void)
 {
 
@@ -81,77 +163,19 @@ int main(void)
 	avoid_obstacles_start_thd();
 	avoid_obstacles_pause_thd();
 
-	static systime_t beer_time;
-	static bool thirsty = false;
 	static bool tavern_threads_resumed = false;
 
 
     while (1) {
 
     	if(get_selector() == TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
-    		if(!tavern_threads_resumed){
-				set_music_to_play(TAVERN_SONG);
-				walk_resume_thd();
-				avoid_obstacles_resume_thd();
-	    		tavern_threads_resumed = true;
-    		}
-    		thirsty = true;
-			while(get_selector()==TAVERN_MODE_SELECTION){//While the selector isn't switched manually, the epuck is locked in its tavern stroll
-				if((!beer_time)||!thirsty){//checks if time has been initialized or if a beer has been gotten
-					beer_time = chVTGetSystemTime();
-				}
-				if((chVTGetSystemTime() - beer_time) > S2ST(TIMEOUR_BEER_STROLL)){//The beer timeout delay has been reached, the epuck is thirsty
-					thirsty = true;
-					walk_pause_thd();
-					avoid_obstacles_pause_thd();
-					tavern_threads_resumed = false;
-					set_color_mode(COULEUR_BLEU);
-					scan_start();
-					while(!get_good_color()){//Waits for the scan to identify the enemy
-									chThdSleepMilliseconds(100);//10Hz Refresh
-					}
-					beer_start();//Gets a beer
-					while(!get_beer_served()){
-						chThdSleepMilliseconds(100);//10Hz Refresh
-					}//A beer has been served and the epuck has  gotten away from the bar => can revert to tavern stroll
-					thirsty = false;
-					if(!tavern_threads_resumed){
-						walk_resume_thd();
-						avoid_obstacles_resume_thd();
-						tavern_threads_resumed = true;
-					}
-				}
-				chThdSleepMilliseconds(1000);//1Hz Refresh
-			}
+    		tavern_threads_resumed = tavern_phase(tavern_threads_resumed);
+			chThdSleepMilliseconds(1000);//1Hz Refresh
     	}else if(get_selector() == HUNT_MODE_SELECTION){
-			walk_pause_thd();
-			avoid_obstacles_pause_thd();
-			set_color_mode(COULEUR_ROUGE);
-			scan_start();//Scan for enemy: the epuck scans nearby objects using its TOF sensor
-			while(!get_good_color()){//Waits for the scan to identify the enemy
-				chThdSleepMilliseconds(100);//10Hz Refresh
-			}//The while loop ends => Enemy is detected
-			set_music_to_play(ENEMY_DETECTION_SONG);
-			chThdSleepSeconds(TRANSITION_SONG_DURATION);
-			set_music_to_play(PURSUIT_SONG);
-			pid_distance_start();//Pursuit initialized
-			while(!get_job_is_done()){//Waits for the pursuit to finish
-				chThdSleepMilliseconds(100);//10Hz Refresh
-			}
-			set_music_to_play(VICTORY_SONG);//Enemy Hit. Victory is ours !
-			chThdSleepSeconds(TRANSITION_SONG_DURATION);
-		    set_music_to_play(NO_SONG);
-			while(((get_selector() == HUNT_MODE_SELECTION) || (get_selector() != TAVERN_MODE_SELECTION)) && get_job_is_done() ){
-				chThdSleepMilliseconds(100);//10Hz Refresh; Stays locked in if HUNT_MODE isn't manually disabled (through selector)
-			}
+    		tavern_threads_resumed = tracking_phase(tavern_threads_resumed);
     	}
     	else{
-		    set_music_to_play(NO_SONG);
-			walk_pause_thd();
-			avoid_obstacles_pause_thd();
-			stop_beer();
-			stop_scan();
-			stop_pid();
+    		tavern_threads_resumed = reinit(tavern_threads_resumed);
     	}
     	chThdSleepMilliseconds(100);//10Hz Refresh; After the sleep, the epuck goes back to it tavern stroll initialisation at beginning of principal while.
     }

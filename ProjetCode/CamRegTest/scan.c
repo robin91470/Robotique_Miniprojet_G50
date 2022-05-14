@@ -80,6 +80,13 @@ static THD_FUNCTION(Scan, arg) {
     (void)arg;
     systime_t time;
 	while(1){
+		if(must_stop){
+			left_motor_set_speed(SPEED_STOP);
+			right_motor_set_speed(SPEED_STOP);
+			must_stop = 0;
+			thd_exist = 0;
+			chThdExit(0);
+		}
 		time = chVTGetSystemTime();
 		int16_t dist_approach = 0;
 		couleur color_scanned = 0;
@@ -108,13 +115,8 @@ static THD_FUNCTION(Scan, arg) {
 			right_motor_set_speed(-ROTATION_SPEED);
 
 		}
-		if(must_stop){
-			left_motor_set_speed(SPEED_STOP);
-			right_motor_set_speed(SPEED_STOP);
-			must_stop = 0;
-			thd_exist = 0;
-			chThdExit(0);
-		}
+
+
 
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }

@@ -31,6 +31,11 @@ static THD_FUNCTION(Beer, arg) {
     systime_t time;
 
 	while(1){
+		if(must_stop){
+			must_stop = 0;
+			thd_exist = 0;
+			chThdExit(0);
+		}
 		time = chVTGetSystemTime();
 		int16_t dist_approach = 0;
 		dist_approach = VL53L0X_get_dist_mm() - BAR_DIST;
@@ -42,11 +47,7 @@ static THD_FUNCTION(Beer, arg) {
 			thd_exist = 0;
 			chThdExit(0);
 		}
-		if(must_stop){
-			must_stop = 0;
-			thd_exist = 0;
-			chThdExit(0);
-		}
+
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
     }
 }

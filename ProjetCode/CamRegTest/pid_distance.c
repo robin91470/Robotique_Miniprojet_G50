@@ -70,6 +70,22 @@ int16_t pid_regulator(uint16_t distance, float goal){
     return (int16_t)speed;
 }
 
+static void animation(void){
+	float time_animation = 0;
+	uint16_t step_animation = 0;
+	step_animation = (NSTEP_ONE_TURN/2)/(FRACTION_OF_THE_ROAD);
+	time_animation = 1000*step_animation/SPEED_ANIMATION1;
+	right_motor_set_speed(SPEED_ANIMATION1);
+	left_motor_set_speed(-SPEED_ANIMATION1);
+	chThdSleepMilliseconds(time_animation);
+	time_animation = 1000*step_animation/SPEED_ANIMATION2;
+	right_motor_set_speed(-SPEED_ANIMATION2);
+	left_motor_set_speed(SPEED_ANIMATION2);
+	chThdSleepMilliseconds(time_animation);
+	right_motor_set_speed(SPEED_STOP);
+	left_motor_set_speed(SPEED_STOP);
+}
+
 static THD_WORKING_AREA(waPidRegulator, 256);
 static THD_FUNCTION(PidRegulator, arg) {
 
@@ -81,6 +97,13 @@ static THD_FUNCTION(PidRegulator, arg) {
     int16_t speed = 0;
 
     while(1){
+    	if(must_stop){
+			right_motor_set_speed(SPEED_STOP);
+			left_motor_set_speed(SPEED_STOP);
+			must_stop = false;
+			thd_exist = false;
+			chThdExit(0);
+		}
     	time = chVTGetSystemTime();
     	if(!stable_time){
     	    stable_time = chVTGetSystemTime();
@@ -96,18 +119,12 @@ static THD_FUNCTION(PidRegulator, arg) {
 		if(!speed){
 			if((chVTGetSystemTime() - stable_time) > S2ST(STABLE_DURATION)){
 				is_done = true;
+				animation();
 				thd_exist = false;
 				chThdExit(0);
 			}
 		}else{
 			stable_time = chVTGetSystemTime();
-		}
-		if(must_stop){
-			right_motor_set_speed(SPEED_STOP);
-			left_motor_set_speed(SPEED_STOP);
-			must_stop = false;
-			thd_exist = false;
-			chThdExit(0);
 		}
 
         //100Hz

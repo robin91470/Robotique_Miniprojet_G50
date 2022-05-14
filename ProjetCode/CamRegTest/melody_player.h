@@ -10,6 +10,7 @@ typedef enum{
 	POKEMON_TRAINER_BATTLE,
 	VICTORY_FANFARE,
 	THE_TAVERN_SONG,
+	RADAR,
 
 	NB_EXTERNAL_SONGS	//tell the number of internal songs
 }song_selection_ext;
@@ -19,7 +20,8 @@ typedef enum {
 	TAVERN_SONG = 0x01,
     PURSUIT_SONG = 0x02,
     ENEMY_DETECTION_SONG = 0x03,
-	VICTORY_SONG = 0x04
+	VICTORY_SONG = 0x04,
+	RADAR_SONG = 0x05
 } music;
 
 void melody_player_start(void);
