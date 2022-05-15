@@ -1,9 +1,4 @@
-/*
- * pid_distance.h
- *
- *  Created on: 29 avr. 2022
- *      Author: alexis
- */
+
 
 #ifndef PID_DISTANCE_H_
 #define PID_DISTANCE_H_

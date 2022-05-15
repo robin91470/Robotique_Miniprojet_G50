@@ -1,9 +1,3 @@
-/*
- * pid_distance.c
- *
- *  Created on: 29 avr. 2022
- *      Author: alexis
- */
 
 
 #include "ch.h"

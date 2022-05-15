@@ -71,7 +71,7 @@ static bool tavern_phase(bool tavern_threads_resumed){
 			walk_pause_thd();
 			avoid_obstacles_pause_thd();
 			tavern_threads_resumed = false;
-			set_color_mode(COULEUR_BLEU);
+			set_color_mode(COULEUR_NOIR);
 			scan_start();
 			while(!get_good_color()){//Waits for the scan to identify the enemy
 							chThdSleepMilliseconds(100);//10Hz Refresh

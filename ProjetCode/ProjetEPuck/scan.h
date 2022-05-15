@@ -6,7 +6,8 @@ void scan_start(void);
 typedef enum {
     COULEUR_AUTRE = 0x00,
     COULEUR_ROUGE = 0x01,
-    COULEUR_BLEU = 0x02
+    COULEUR_BLEU = 0x02,
+	COULEUR_NOIR = 0x03
 } couleur;
 
 //These parameters can be change for different environment

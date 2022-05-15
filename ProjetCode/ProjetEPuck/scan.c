@@ -53,8 +53,8 @@ static couleur color_scan(void){
 	couleur color_detected = COULEUR_AUTRE;
 
 
-	if(get_line_detection_red() && !get_line_detection_blue()){
-		color_detected = COULEUR_BLEU;
+	if(!get_line_detection_red() && !get_line_detection_blue()){
+		color_detected = COULEUR_NOIR;
 	}else if(!get_line_detection_red() && get_line_detection_blue()){
 		color_detected = COULEUR_ROUGE;
 	}else{
@@ -94,7 +94,7 @@ static THD_FUNCTION(Scan, arg) {
 			color_scanned = color_scan();
 			ProcessImage_pause_thd();
 			if((color_mode == COULEUR_ROUGE && color_scanned == COULEUR_ROUGE) ||
-					(color_mode == COULEUR_BLEU && color_scanned == COULEUR_BLEU)){
+					(color_mode == COULEUR_NOIR && color_scanned == COULEUR_NOIR)){
 				good_color = 1;
 				thd_exist = 0;
 				chThdExit(0);
