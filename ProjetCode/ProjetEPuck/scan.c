@@ -1,10 +1,3 @@
-/*
- * scan.c
- *
- *  Created on: 13 mai 2022
- *      Author: alexis
- */
-
 
 #include <ch.h>
 #include <hal.h>
@@ -36,6 +29,7 @@ void distance_approach(int16_t dist_approach){
 	int16_t step_approach = 0;
 	float time_approach = 0;
 
+	//conversion de la distance en mètre en pas que le moteur doit faire
 	step_approach = dist_approach*NSTEP_ONE_TURN / (PERIMETER_EPUCK*CM_TO_MM);
 	time_approach = 1000* abs(step_approach)/SPEED_APPROACH;
 	if(dist_approach >= 0){
@@ -46,6 +40,7 @@ void distance_approach(int16_t dist_approach){
 		left_motor_set_speed(-SPEED_APPROACH);
 		right_motor_set_speed(-SPEED_APPROACH);
 	}
+	//si le temps n'est pas nul on attends de parcourir la distance requise
 	if(time_approach){
 		chThdSleepMilliseconds(time_approach);
 	}
@@ -53,6 +48,7 @@ void distance_approach(int16_t dist_approach){
 	right_motor_set_speed(SPEED_STOP);
 }
 
+// detecte la couleur scanner en fonction de creux d'intensité de couleur bleu et rouge
 static couleur color_scan(void){
 	couleur color_detected = COULEUR_AUTRE;
 

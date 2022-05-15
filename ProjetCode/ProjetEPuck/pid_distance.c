@@ -69,7 +69,7 @@ int16_t pid_regulator(uint16_t distance, float goal){
 	previous_error = error ;
     return (int16_t)speed;
 }
-
+// animation de coup d'épée
 static void animation(void){
 	float time_animation = 0;
 	uint16_t step_animation = 0;
@@ -117,6 +117,7 @@ static THD_FUNCTION(PidRegulator, arg) {
 		left_motor_set_speed(speed);
 
 		if(!speed){
+			//si le robot est arreté pendant assez de temps, il peut attaquer l'ennemi
 			if((chVTGetSystemTime() - stable_time) > S2ST(STABLE_DURATION)){
 				is_done = true;
 				animation();

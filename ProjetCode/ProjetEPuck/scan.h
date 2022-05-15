@@ -1,9 +1,3 @@
-/*
- * scan.h
- *
- *  Created on: 13 mai 2022
- *      Author: alexis
- */
 
 #ifndef SCAN_H_
 #define SCAN_H_
@@ -25,8 +19,11 @@ typedef enum {
 #define CM_TO_MM				10
 
 couleur get_color_mode(void);
+//Permet de sélectionner la couleur à trouver
 void set_color_mode(couleur color_mode);
+// Permet de savoir si on a trouvé la bonne couleur
 bool get_good_color(void);
+//Fonction permettant de se rapprocher d'une certaine distance d'un objet
 void distance_approach(int16_t dist_approach);
 // Permet de stopper la fonction de scan si besoin
 void stop_scan(void);

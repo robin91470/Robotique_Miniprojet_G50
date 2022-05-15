@@ -1,9 +1,3 @@
-/*
- * beer.c
- *
- *  Created on: 13 mai 2022
- *      Author: alexis
- */
 #include <ch.h>
 #include <hal.h>
 #include <sensors/VL53L0X/VL53L0X.h>
@@ -41,6 +35,7 @@ static THD_FUNCTION(Beer, arg) {
 		dist_approach = VL53L0X_get_dist_mm() - BAR_DIST;
 		if(dist_approach < MAX_SCAN_DIST && dist_approach > MIN_SCAN_DIST){
 			distance_approach(dist_approach);
+			// attends que la bière est servie
 			chThdSleepSeconds(BEER_WAIT);
 			distance_approach(-dist_approach);
 			beer_gotten = true;
