@@ -10,7 +10,6 @@
 
 
 
-//static uint16_t line_position = IMAGE_BUFFER_SIZE/2;
 static bool line_detection_red = 0;
 static bool line_detection_blue = 0;
 static bool detection_line(uint8_t* image);
