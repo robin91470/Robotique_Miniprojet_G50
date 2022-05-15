@@ -171,13 +171,13 @@ int main(void)
     	if(get_selector() == TAVERN_MODE_SELECTION){//Initialisation of the tavern stroll
     		tavern_threads_resumed = tavern_phase(tavern_threads_resumed);
 			chThdSleepMilliseconds(1000);//1Hz Refresh
-    	}else if(get_selector() == HUNT_MODE_SELECTION){
+    	}else if(get_selector() == HUNT_MODE_SELECTION){//Initialisation of the hunt
     		tavern_threads_resumed = tracking_phase(tavern_threads_resumed);
     	}
     	else{
     		tavern_threads_resumed = reinit(tavern_threads_resumed);
     	}
-    	chThdSleepMilliseconds(100);//10Hz Refresh; After the sleep, the epuck goes back to it tavern stroll initialisation at beginning of principal while.
+    	chThdSleepMilliseconds(100);//10Hz Refresh;
     }
 }
 
