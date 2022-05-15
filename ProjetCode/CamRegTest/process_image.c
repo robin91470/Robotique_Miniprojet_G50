@@ -34,7 +34,6 @@ static THD_FUNCTION(CaptureImage, arg) {
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
 	po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-	po8030_set_contrast(100);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
@@ -77,12 +76,13 @@ static THD_FUNCTION(ProcessImage, arg) {
 				image_bleu[i/2] = img_buff_ptr[i+1] &0x1F;
 
 			}
-
 			line_detection_red = detection_line(image_rouge);
 			line_detection_blue = detection_line(image_bleu);
 			line_detection_avg();
     	}
-		chThdSleepMilliseconds(100);
+    	else{
+    		chThdSleepMilliseconds(100);
+    	}
 
 
     }
