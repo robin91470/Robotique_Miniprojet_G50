@@ -7,18 +7,8 @@ extern "C" {
 
 #include <stdint.h>
 
+
 #define PROXIMITY_NB_CHANNELS 8
-#define PROXIMITY_NB_HALF 4// Used to differentiate left/right side sensors
-#define PROXIMITY_SENSOR_0_ID 0
-#define PROXIMITY_SENSOR_1_ID 1
-#define PROXIMITY_SENSOR_2_ID 2
-#define PROXIMITY_SENSOR_3_ID 3
-#define PROXIMITY_SENSOR_4_ID 4
-#define PROXIMITY_SENSOR_5_ID 5
-#define PROXIMITY_SENSOR_6_ID 6
-#define PROXIMITY_SENSOR_7_ID 7//constants used to identify individual sensors (refer to epuck wiki)
-
-
 
 /** Struct containing a proximity measurment message. */
 typedef struct {
