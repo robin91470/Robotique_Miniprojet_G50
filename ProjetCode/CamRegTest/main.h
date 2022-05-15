@@ -8,8 +8,15 @@ extern "C" {
 #include "camera/dcmi_camera.h"
 #include "msgbus/messagebus.h"
 #include "parameter/parameter.h"
+// motor properties
 
+#define NSTEP_ONE_TURN      1000
 
+#define PI                  3.1415926536f
+#define WHEEL_DISTANCE      5.35f    //cm
+#define PERIMETER_EPUCK     (PI * WHEEL_DISTANCE)
+#define SPEED_STOP			0//[step/s]
+#define SPEED_ROTATION		700//[step/s]
 
 
 

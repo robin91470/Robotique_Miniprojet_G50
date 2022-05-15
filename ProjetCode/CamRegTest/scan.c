@@ -25,7 +25,13 @@ static couleur color_mode = COULEUR_AUTRE;
 // let know if we have found the objective
 static bool good_color = 0;
 
-static void scan_approach(int16_t dist_approach){
+// Booléen d'arret d'urgence de la fonction
+static bool must_stop = false;
+
+//Booléen indiquant si la fonction est crée ou non
+static bool thd_exist = false;
+
+void distance_approach(int16_t dist_approach){
 
 	int16_t step_approach = 0;
 	float time_approach = 0;
@@ -73,23 +79,32 @@ static THD_FUNCTION(Scan, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
     systime_t time;
-    good_color = 0;
 	while(1){
+		if(must_stop){
+			left_motor_set_speed(SPEED_STOP);
+			right_motor_set_speed(SPEED_STOP);
+			must_stop = 0;
+			thd_exist = 0;
+			chThdExit(0);
+		}
 		time = chVTGetSystemTime();
 		int16_t dist_approach = 0;
 		couleur color_scanned = 0;
 		if ((VL53L0X_get_dist_mm() < MAX_SCAN_DIST) && (VL53L0X_get_dist_mm() > MIN_SCAN_DIST)){
 			dist_approach = VL53L0X_get_dist_mm() - SCAN_DIST;
-			scan_approach(dist_approach);
+			distance_approach(dist_approach);
+			ProcessImage_resume_thd();
 			chThdSleepMilliseconds(TIME_TO_SCAN);
 			color_scanned = color_scan();
+			ProcessImage_pause_thd();
 			if((color_mode == COULEUR_ROUGE && color_scanned == COULEUR_ROUGE) ||
 					(color_mode == COULEUR_BLEU && color_scanned == COULEUR_BLEU)){
 				good_color = 1;
+				thd_exist = 0;
 				chThdExit(0);
 			}else{
 				good_color = 0;
-				scan_approach(-dist_approach);
+				distance_approach(-dist_approach);
 				left_motor_set_speed(ROTATION_SPEED);
 				right_motor_set_speed(-ROTATION_SPEED);
 				while(VL53L0X_get_dist_mm() < MAX_SCAN_DIST);
@@ -100,6 +115,7 @@ static THD_FUNCTION(Scan, arg) {
 			right_motor_set_speed(-ROTATION_SPEED);
 
 		}
+
 
 
 		chThdSleepUntilWindowed(time, time + MS2ST(10));//refresh at 100 Hz
@@ -120,5 +136,14 @@ bool get_good_color(void){
 
 
 void scan_start(void){
-	chThdCreateStatic(waScan, sizeof(waScan), NORMALPRIO, Scan, NULL);
+	if(!thd_exist){
+		thd_exist  = true;
+		good_color = false;
+		must_stop = false;
+		chThdCreateStatic(waScan, sizeof(waScan), NORMALPRIO, Scan, NULL);
+	}
+}
+
+void stop_scan(void){
+	must_stop = true;
 }

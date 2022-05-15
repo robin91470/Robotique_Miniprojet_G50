@@ -27,5 +27,8 @@ typedef enum {
 couleur get_color_mode(void);
 void set_color_mode(couleur color_mode);
 bool get_good_color(void);
+void distance_approach(int16_t dist_approach);
+// Permet de stopper la fonction de scan si besoin
+void stop_scan(void);
 
 #endif /* SCAN_H_ */

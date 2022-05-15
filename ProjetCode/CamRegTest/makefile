@@ -15,6 +15,8 @@ CSRC += ./main.c \
 		./walk.c \
 		./melody_player.c \
 		./scan.c \
+		./avoid_obstacles.c \
+		./beer.c \
 		
 #Header folders to include
 INCDIR += 

@@ -13,11 +13,19 @@
 #include <chprintf.h>
 
 
-
+#include <main.h>
 #include <motors.h>
 #include <pid_distance.h>
 #include <sensors/VL53L0X/VL53L0X.h>
 #include <process_image.h>
+
+// Booléen de complétition de la tache
+static bool is_done = false;
+// Booléen d'arret d'urgence de la fonction
+static bool must_stop = false;
+
+//Booléen indiquant si la fonction est crée ou non
+static bool thd_exist = false;
 
 static uint16_t get_mean_distance_mm(void){
 	uint16_t mean_distance = 0;
@@ -62,6 +70,22 @@ int16_t pid_regulator(uint16_t distance, float goal){
     return (int16_t)speed;
 }
 
+static void animation(void){
+	float time_animation = 0;
+	uint16_t step_animation = 0;
+	step_animation = (NSTEP_ONE_TURN/2)/(FRACTION_OF_THE_ROAD);
+	time_animation = 1000*step_animation/SPEED_ANIMATION1;
+	right_motor_set_speed(SPEED_ANIMATION1);
+	left_motor_set_speed(-SPEED_ANIMATION1);
+	chThdSleepMilliseconds(time_animation);
+	time_animation = 1000*step_animation/SPEED_ANIMATION2;
+	right_motor_set_speed(-SPEED_ANIMATION2);
+	left_motor_set_speed(SPEED_ANIMATION2);
+	chThdSleepMilliseconds(time_animation);
+	right_motor_set_speed(SPEED_STOP);
+	left_motor_set_speed(SPEED_STOP);
+}
+
 static THD_WORKING_AREA(waPidRegulator, 256);
 static THD_FUNCTION(PidRegulator, arg) {
 
@@ -69,19 +93,39 @@ static THD_FUNCTION(PidRegulator, arg) {
     (void)arg;
 
     systime_t time;
-
+    static systime_t stable_time;
     int16_t speed = 0;
 
     while(1){
-        time = chVTGetSystemTime();
-
+    	if(must_stop){
+			right_motor_set_speed(SPEED_STOP);
+			left_motor_set_speed(SPEED_STOP);
+			must_stop = false;
+			thd_exist = false;
+			chThdExit(0);
+		}
+    	time = chVTGetSystemTime();
+    	if(!stable_time){
+    	    stable_time = chVTGetSystemTime();
+    	}
         //computes the speed to give to the motors
         speed = pid_regulator(get_mean_distance_mm(), GOAL_DIST);
 
 
         //applies the speed from the PID regulator
-		right_motor_set_speed(speed) ;
+		right_motor_set_speed(speed);
 		left_motor_set_speed(speed);
+
+		if(!speed){
+			if((chVTGetSystemTime() - stable_time) > S2ST(STABLE_DURATION)){
+				is_done = true;
+				animation();
+				thd_exist = false;
+				chThdExit(0);
+			}
+		}else{
+			stable_time = chVTGetSystemTime();
+		}
 
         //100Hz
         chThdSleepUntilWindowed(time, time + MS2ST(10));
@@ -89,5 +133,18 @@ static THD_FUNCTION(PidRegulator, arg) {
 }
 
 void pid_distance_start(void){
-	chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	if(!thd_exist){
+		must_stop = false;
+		is_done = false;
+		thd_exist = true;
+		chThdCreateStatic(waPidRegulator, sizeof(waPidRegulator), NORMALPRIO, PidRegulator, NULL);
+	}
+}
+
+bool get_job_is_done(void){
+	return is_done;
+}
+
+void stop_pid(void){
+	must_stop = true;
 }

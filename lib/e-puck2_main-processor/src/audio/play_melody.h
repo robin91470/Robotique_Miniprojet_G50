@@ -122,10 +122,6 @@ typedef enum{
 	STARWARS,
 	SANDSTORMS,
 	SEVEN_NATION_ARMY,
-	MEGALOVANIA,
-	POKEMON_TRAINER_BATTLE,
-	VICTORY_FANFARE,
-	THE_TAVERN_SONG,
 
 	NB_SONGS,	//tell the number of internal songs
 	//the following should be used if an external song has to be used 
@@ -184,6 +180,5 @@ void stopCurrentMelody(void);
  */
 void playNote(uint16_t note, uint16_t duration_ms);
 
-bool getPlay(void);
 
 #endif /* PLAY_MELODY_H */
