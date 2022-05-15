@@ -53,7 +53,7 @@ static couleur color_scan(void){
 	couleur color_detected = COULEUR_AUTRE;
 
 
-	if(!get_line_detection_red() && !get_line_detection_blue()){
+	if(get_line_detection_red() && get_line_detection_blue()){
 		color_detected = COULEUR_NOIR;
 	}else if(!get_line_detection_red() && get_line_detection_blue()){
 		color_detected = COULEUR_ROUGE;
